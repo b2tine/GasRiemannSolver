@@ -1,0 +1,6 @@
+*.o
+*.swp
+
+withdraw_test
+secantmethod_test
+driver
