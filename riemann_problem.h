@@ -14,7 +14,7 @@ struct STATE
 {
     double u;       //velocity
     double rho;     //density
-    double pres;    //pressure
+    double p;    //pressure
 
     void print() const
     {

@@ -9,7 +9,7 @@ double near_piston_soundspeed(double u1, double rho0, double u0, PISTONDIR dir)
     
     if (a <= 0.0)
     {
-        //TODO: how should this be handled, throw exception/error?
+        //TODO: throw an exception
         printf("Vacuum State Detected near piston head\n");
         exit(1);
     }
@@ -33,13 +33,12 @@ double compute_pressure(double rho)
 }
 
 
-//TODO: make pure functions of x/t (combine x,t into single argument)
+//TODO: make pure functions of x/t (combine x,t into single argument)?
 double compute_fan_velocity(double a0, double u0, double x, double t, PISTONDIR dir)
 {
     assert(t > 0.0);
     double sign = ((dir == PISTONDIR::LEFT) ? 1.0 : -1.0);
     return (2.0*(x/t - sign*a0) + u0*(GAMMA-1.0))/(GAMMA+1.0);
-    //return (2.0*(x/t - a0) + u0*(GAMMA-1.0))/(GAMMA+1.0);
 }
 
 double compute_fan_soundspeed(double a0, double u0, double x, double t, PISTONDIR dir)
@@ -49,12 +48,14 @@ double compute_fan_soundspeed(double a0, double u0, double x, double t, PISTONDI
     double a_fan = a0 + sign*(x/t - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
     if (a_fan <= 0.0)
     {
-        //TODO: how should this be handled, throw exception/error?
+        //TODO: throw an exception
         printf("Vacuum State Detected in fan region\n");
-        //exit(1);
+        exit(1);
     }
     return a_fan;
 }
 
+//TODO: Write a Left/Right CenteredWave() function per assignment instructions.
+//      Should just call the fan solutions for corresponding directions? 
 
 
