@@ -1,5 +1,7 @@
 #include "riemann_problem.h"
 
+//TODO: Add GAMMA as function parameter,
+//      potentially with a default value.
 
 double near_piston_soundspeed(double u1, PISTONDIR dir,
         double u0, double rho0, double pres0)
