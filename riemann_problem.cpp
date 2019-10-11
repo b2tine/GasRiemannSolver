@@ -3,6 +3,9 @@
 //TODO: Add GAMMA as function parameter,
 //      potentially with a default value.
 
+
+//SIMPLE WAVE FUNCTIONS
+
 double near_piston_soundspeed(double u1, PISTONDIR dir,
         double u0, double rho0, double pres0)
        
@@ -63,7 +66,22 @@ double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
     return a_fan;
 }
 
-//TODO: Write a Left/Right CenteredWave() function per assignment instructions.
-//      Should just call the fan solutions for corresponding directions? 
+
+//SHOCK WAVE FUNCTIONS
+
+double behind_state_pressure(double rhoa, double pa, double rhob)
+{
+    double GP = GAMMA + 1.0;
+    double GM = GAMMA - 1.0;
+    return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
+}
+
+double behind_state_specific_volume(double rhoa, double pa, double pb)
+{
+    double GP = GAMMA + 1.0;
+    double GM = GAMMA - 1.0;
+    return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
+}
+
 
 

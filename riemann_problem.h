@@ -30,6 +30,8 @@ struct STATE
 enum class PISTONDIR {LEFT,RIGHT};
 
 
+//SIMPLE WAVE FUNCTIONS
+
 double constant_state_soundspeed(double rho, double pres);
 
 double near_piston_soundspeed(double u1, PISTONDIR dir,
@@ -45,6 +47,11 @@ double rarefaction_velocity(double x, double t, PISTONDIR dir,
 double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
                               double u0, double a0);
 
+//SHOCK WAVE FUNCTIONS
+
+double behind_state_pressure(double rhoa, double pa, double rhob);
+
+double behind_state_specific_volume(double rhoa, double pa, double pb);
 
 
 

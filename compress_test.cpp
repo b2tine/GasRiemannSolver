@@ -2,9 +2,6 @@
 
 //const double GAMMA = 1.4;
 
-double behind_state_pressure(double rhoa, double pa, double rhob);
-double behind_state_specific_volume(double rhoa, double pa, double pb);
-
 //RIGHT piston compression
 //LFS: ul, ur > 0
 //     ul = ua and ur = ub
@@ -65,7 +62,7 @@ int main(int argc, char* argv[])
     double rhob = 1.0/taub;
     double ab = constant_state_soundspeed(rhob,pb);
 
-    //NOTE: M is mass flux in the shock-stationary frame, not the mach number
+    //NOTE: M is mass flux in the shock-stationary frame, and is signed.
 
     //2.compute M from M^2 = (pr - pl)/(taul - taur)
     //2.compute M from M^2 = (pb - pa)/(taua - taub)
@@ -106,25 +103,10 @@ int main(int argc, char* argv[])
 
     double shock_speed = (rhoa*ua - rhob*ub)/(rhoa - rhob);
     double mach = (ua - shock_speed)/aa;
-    //double mach = (shock_speed - ua)/aa;
 
     printf("shock_speed = %g\n",shock_speed);
     printf("mach = %g\n",mach);
 
     return 0;
-}
-
-double behind_state_pressure(double rhoa, double pa, double rhob)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
-}
-
-double behind_state_specific_volume(double rhoa, double pa, double pb)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
 }
 
