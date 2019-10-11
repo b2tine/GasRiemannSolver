@@ -12,7 +12,8 @@ struct STATE
 {
     double u;       //velocity
     double rho;     //density
-    double p;    //pressure
+    double p;       //pressure
+    double gamma;
 
     void print() const
     {
@@ -34,20 +35,9 @@ double constant_state_soundspeed(double rho, double pres);
 double near_piston_soundspeed(double u1, PISTONDIR dir,
                               double u0, double rho0, double pres0);
 
-//double near_piston_density(double a1, double rho0, double pres0);
-//double near_piston_pressure(double a1, double rho1);
-
 double isentropic_relation_density(double a1, double rho0, double pres0);
 
 double isentropic_relation_pressure(double a1, double rho1);
-
-/*
-double compute_fan_velocity(double x, double t, PISTONDIR dir,
-                            double u0, double a0);
-
-double compute_fan_soundspeed(double x, double t, PISTONDIR dir,
-                              double u0, double a0);
-*/
 
 double rarefaction_velocity(double x, double t, PISTONDIR dir,
                             double u0, double a0);

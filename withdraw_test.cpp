@@ -8,7 +8,8 @@ void piston_withdraw_point_locate(
 
 //rho0, p0, and u0 are state values in the constant region
 //far from the moving piston head.
-//u1 is the velocity with which the piston head is withdrawn.
+//u1 is the velocity with which the piston head is withdrawn,
+//and rho1, p1 are near-piston state variables.
 
 int main(int argc, char** argv)
 {
@@ -35,6 +36,7 @@ int main(int argc, char** argv)
     double u0 = 0.0;        // m/s
     double rho0 = 1.225;    // kg/m^3
     double p0 = 100000;     // kg/m/s^2 (pascals)
+    //END GIVEN
     double a0 = constant_state_soundspeed(rho0,p0);
 
     printf("u0 = %g\n",u0);
