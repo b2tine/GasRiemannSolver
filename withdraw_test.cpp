@@ -1,7 +1,9 @@
 #include "riemann_problem.h"
 
 
-//void piston_withdraw_point_locate(double x, double t, PISTONDIR dir);
+void piston_withdraw_point_locate(
+        double x, double t, PISTONDIR dir,
+        double u1, double u0, double rho0, double p0, double a0);
 
 
 //rho0, p0, and u0 are state values in the constant region
@@ -53,14 +55,34 @@ int main(int argc, char** argv)
     double x = sign*3.37;
     double t = 0.01;
     
-    //piston_withdraw_point_locate(x,t,dir);
+    piston_withdraw_point_locate(x,t,dir,u1,u0,rho0,p0,a0);
     
+    
+    /*
+    double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
+    double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+    double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
+    double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+    
+    printf("u_fan = %g\n",u_fan);
+    printf("rho_fan = %g\n",rho_fan);
+    printf("p_fan = %g\n",p_fan);
+    printf("a_fan = %g\n",a_fan);
+    */
+
+    return 0;
+}
+
+
+//TODO: pass in STATE* data structures
+void piston_withdraw_point_locate(
+        double x, double t, PISTONDIR dir,
+        double u1, double u0, double rho0, double p0, double a0)
+{
     double C = x/t;
     printf("C = %g\n",C);
     if (dir == PISTONDIR::LEFT)
     {
-        //TODO: for function need to pass x,t,dir,u1,u0,a0
-
         double CplusLeft = 0.5*((GAMMA+1.0)*u1 - (GAMMA-1.0)*u0) + a0;
         double CplusRight = u0 + a0;
         printf("CplusLeft = %g\n",CplusLeft);
@@ -127,21 +149,4 @@ int main(int argc, char** argv)
             //TODO: return u0, rho0, p0
         }
     }
-    
-    /*
-    double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
-    double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
-    double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
-    double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-    
-    printf("u_fan = %g\n",u_fan);
-    printf("rho_fan = %g\n",rho_fan);
-    printf("p_fan = %g\n",p_fan);
-    printf("a_fan = %g\n",a_fan);
-    */
-
-    return 0;
 }
-
-
-
