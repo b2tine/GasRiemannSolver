@@ -2,5 +2,6 @@
 *.swp
 
 withdraw_test
+compress_test
 secantmethod_test
 driver
