@@ -1,13 +1,16 @@
 CXXFLAGS=-std=c++11
 
 
-all: driver withdraw_test secantmethod_test
+all: driver withdraw_test compress_test secantmethod_test
 
 
 driver: driver.cpp riemann_problem.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 withdraw_test: withdraw_test.cpp riemann_problem.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+compress_test: compress_test.cpp riemann_problem.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 secantmethod_test: secantmethod_test.cpp
