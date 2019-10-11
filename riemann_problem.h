@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <cassert>
+#include <cstdlib>
+#include <ctime>
 #include <cmath>
 
 const double GAMMA = 1.4;
@@ -13,7 +15,7 @@ struct STATE
     double u;       //velocity
     double rho;     //density
     double p;       //pressure
-    double gamma;
+    //double gamma;
 
     void print() const
     {
