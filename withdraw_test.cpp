@@ -75,16 +75,20 @@ void piston_withdraw_point_locate(double x, double t)
         if (CplusLeft <= C && C <= CplusRight)
         {
             printf("(x,t) = (%g, %g) in LCW fan region, S-\n\n",x,t);
+            //TODO: Return u_fan, rho_fan, p_fan.
+            //      (use a_fan to compute rho_fan and p_fan)
         }
         else if (C < CplusLeft)
         {
             printf("(x,t) = (%g, %g) in LCW near-piston "
                     "constant region, S1\n\n",x,t);
+            //TODO: return u1, rho1, p1
         }
         else
         {
             printf("(x,t) = (%g, %g) in LCW far-piston "
                     "constant region, S0\n\n",x,t);
+            //TODO: return u0, rho0, p0
         }
     }
     else
@@ -94,16 +98,20 @@ void piston_withdraw_point_locate(double x, double t)
         if (CminusLeft <= C && C <= CminusRight)
         {
             printf("(x,t) = (%g, %g) in RCW fan region, S+\n\n",x,t);
+            //TODO: Return u_fan, rho_fan, p_fan.
+            //      (use a_fan to compute rho_fan and p_fan)
         }
         else if (CminusRight < C)
         {
             printf("(x,t) = (%g, %g) in RCW near-piston "
                     "constant region, S1\n\n",x,t);
+            //TODO: return u1, rho1, p1
         }
         else
         {
             printf("(x,t) = (%g, %g) in RCW far-piston "
                     "constant region, S0\n\n",x,t);
+            //TODO: return u0, rho0, p0
         }
     }
 }
