@@ -1,7 +1,7 @@
 #include "riemann_problem.h"
 
 
-void piston_withdraw_point_locate(double x, double t);
+//void piston_withdraw_point_locate(double x, double t, PISTONDIR dir);
 
 
 //rho0, p0, and u0 are state values in the constant region
@@ -41,42 +41,44 @@ int main(int argc, char** argv)
     printf("a0 = %g\n\n",a0);
 
     double a1 = near_piston_soundspeed(u1,dir,u0,rho0,p0);
-    double rho1 = near_piston_density(a1,rho0,p0);
-    double p1 = near_piston_pressure(a1,rho1);
+    double rho1 = isentropic_relation_density(a1,rho0,p0);
+    double p1 = isentropic_relation_pressure(a1,rho1);
 
-    //sample point in fan region
-    double x = -sign*0.1;
-    double t = 0.1;
-    
-    piston_withdraw_point_locate(x,t);
-    
-    double u_fan = compute_fan_velocity(x,t,dir,u0,a0);
-    double a_fan = compute_fan_soundspeed(x,t,dir,u0,a0);
-    
     printf("u1 = %g\n",u1);
     printf("rho1 = %g\n",rho1);
     printf("p1 = %g\n",p1);
-    printf("a1 = %g\n",a1);
+    printf("a1 = %g\n\n",a1);
 
-    printf("u_fan = %g\n",u_fan);
-    printf("a_fan = %g\n",a_fan);
-
-    return 0;
-}
-
-
-void piston_withdraw_point_locate(double x, double t)
-{
+    //sample point to test point location
+    double x = sign*3.37;
+    double t = 0.01;
+    
+    //piston_withdraw_point_locate(x,t,dir);
+    
     double C = x/t;
+    printf("C = %g\n",C);
     if (dir == PISTONDIR::LEFT)
     {
+        //TODO: for function need to pass x,t,dir,u1,u0,a0
+
         double CplusLeft = 0.5*((GAMMA+1.0)*u1 - (GAMMA-1.0)*u0) + a0;
         double CplusRight = u0 + a0;
+        printf("CplusLeft = %g\n",CplusLeft);
+        printf("CplusRight = %g\n",CplusRight);
+
         if (CplusLeft <= C && C <= CplusRight)
         {
             printf("(x,t) = (%g, %g) in LCW fan region, S-\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
-            //      (use a_fan to compute rho_fan and p_fan)
+            double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
+            double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+            double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
+            double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+            
+            printf("u_fan = %g\n",u_fan);
+            printf("rho_fan = %g\n",rho_fan);
+            printf("p_fan = %g\n",p_fan);
+            printf("a_fan = %g\n",a_fan);
         }
         else if (C < CplusLeft)
         {
@@ -95,11 +97,22 @@ void piston_withdraw_point_locate(double x, double t)
     {
         double CminusLeft = u0 - a0;
         double CminusRight = 0.5*((GAMMA+1.0)*u1 - (GAMMA-1.0)*u0) - a0;
+        printf("CminusLeft = %g\n",CminusLeft);
+        printf("CminusRight = %g\n",CminusRight);
+        
         if (CminusLeft <= C && C <= CminusRight)
         {
             printf("(x,t) = (%g, %g) in RCW fan region, S+\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
-            //      (use a_fan to compute rho_fan and p_fan)
+            double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
+            double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+            double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
+            double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+            
+            printf("u_fan = %g\n",u_fan);
+            printf("rho_fan = %g\n",rho_fan);
+            printf("p_fan = %g\n",p_fan);
+            printf("a_fan = %g\n",a_fan);
         }
         else if (CminusRight < C)
         {
@@ -114,5 +127,21 @@ void piston_withdraw_point_locate(double x, double t)
             //TODO: return u0, rho0, p0
         }
     }
+    
+    /*
+    double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
+    double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+    double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
+    double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+    
+    printf("u_fan = %g\n",u_fan);
+    printf("rho_fan = %g\n",rho_fan);
+    printf("p_fan = %g\n",p_fan);
+    printf("a_fan = %g\n",a_fan);
+    */
+
+    return 0;
 }
+
+
 

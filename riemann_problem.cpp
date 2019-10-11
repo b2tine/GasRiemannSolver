@@ -25,21 +25,22 @@ double constant_state_soundspeed(double rho, double pres)
     return std::sqrt(GAMMA*pres/rho);
 }
 
-//a1 is the near piston soundspeed
-double near_piston_density(double a1, double rho0, double pres0)
+//a1 is the near piston soundspeed, or a soundspeed in the rarefaction fan.
+double isentropic_relation_density(double a1, double rho0, double pres0)
 {
     double arg = a1*a1*pow(rho0,GAMMA)/GAMMA/pres0;
     return pow(arg,1.0/(GAMMA-1.0));
 }
 
-//a1 is the near piston soundspeed, rho1 is near piston density
-double near_piston_pressure(double a1, double rho1)
+//a1 is the near piston soundspeed, rho1 is near piston density.
+//Or a1 and rho1 are state values along a characteristic in the rarefaction fan.
+double isentropic_relation_pressure(double a1, double rho1)
 {
     return a1*a1*rho1/GAMMA;
 }
 
 //TODO: make pure functions of x/t (combine x,t into single argument)?
-double compute_fan_velocity(double x, double t, PISTONDIR dir,
+double rarefaction_velocity(double x, double t, PISTONDIR dir,
                             double u0, double a0)
 {
     assert(t > 0.0);
@@ -47,7 +48,7 @@ double compute_fan_velocity(double x, double t, PISTONDIR dir,
     return (2.0*(x/t - sign*a0) + u0*(GAMMA-1.0))/(GAMMA+1.0);
 }
 
-double compute_fan_soundspeed(double x, double t, PISTONDIR dir,
+double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
                               double u0, double a0)
 {
     assert(t > 0.0);
