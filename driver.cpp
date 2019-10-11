@@ -38,16 +38,16 @@ int main(int argc, char* argv[])
     //Given behind and ahead states (sb and sa)
     //  use left and right for time being .. sl and sr
     
-    double u_l = 0.0;
-    double rho_l = 1.225;
-    double pres_l = compute_pressure(rho_l);
+    double ul = 0.0;
+    double rhol = 1.225;
+    double pl = 100000;
 
-    double u_r = -1.0;
-    double rho_r = 1.1;
-    double pres_r = compute_pressure(rho_r);
+    double ur = -1.0;
+    double rhor = 1.1;
+    double pr = 100;
 
-    STATE sl = {u_l, rho_l, pres_l};
-    STATE sr = {u_r, rho_r, pres_r};
+    STATE sl = {ul, rhol, pl};
+    STATE sr = {ur, rhor, pr};
 
     //Since velocities are equal on each side of the contact discontinuity, set
     //    F(P_slip) = ul_star(P_slip) - ur-star(P_slip)
