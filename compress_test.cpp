@@ -5,64 +5,83 @@
 double behind_state_pressure(double rhoa, double pa, double rhob);
 double behind_state_specific_volume(double rhoa, double pa, double pb);
 
+//RIGHT piston compression
 //LFS: ul, ur > 0
-//     u0 = ul = ua and u1 = ur = ub
+//     ul = ua and ur = ub
+
+//LEFT piston compression
+//RFS: ul, ur < 0
+//     ul = ub and ur = ua
 
 int main(int argc, char* argv[])
 {
-    //double gamma = 1.4;
+    double sign = 1.0;
+    PISTONDIR dir = PISTONDIR::RIGHT;
+    if (argc > 1)
+    {
+        if (argv[1][0] == 'l' || argv[1][0] == 'L')
+        {
+            sign = -1.0;
+            dir = PISTONDIR::LEFT;
+        }
+    }
+
 
     //TODO: generalize to ahead and behind state variables
     
     //0.given 4 inputs: ul, rhol, pl and either rhor OR pr
     //0.given 4 inputs: ua, rhoa, pa and either rhob OR pb
     
-    double ul = 360.0;            //ua
-    double rhol = 1.0;          //rhoa
-    double taul = 1.0/rhol;     //taua
-    double pl = 90000;         //pa
-    double al = constant_state_soundspeed(rhol,pl);
+    double Uleft = 385.0;        // m/s
+    double ua = sign*Uleft;
 
-    //NOTE: ul must be greater than al for RIGHT piston compression.
-    //      more generally, ua most be supersonic.
+    printf("%s piston compression speed U = %g m/s\n\n",
+            (dir == PISTONDIR::LEFT) ? "LEFT" : "RIGHT", ua);
 
-    printf("ul = %g\n",ul);
-    printf("rhol = %g\n",rhol);
-    printf("pl = %g\n",pl);
-    printf("al = %g\n\n",al);
+    double rhoa = 1.0;          // kg/m^3
+    double taua = 1.0/rhoa;     // m^3/kg
+    double pa = 50000;          // kg/m/s^2 (pascals)
+    double aa = constant_state_soundspeed(rhoa,pa);
+
+    //NOTE: ua most be supersonic, ub must be subsonic.
+
+    printf("ua = %g\n",ua);
+    printf("rhoa = %g\n",rhoa);
+    printf("pa = %g\n",pa);
+    printf("aa = %g\n\n",aa);
 
     //TODO: check STATE struct to see which variable has been provided?
-    double rhor = 1.225;      //rhob
-    double taur = 1.0/rhor;   //taub
-    //double pr = 100000;         //pb
+    //double rhob = 1.225;
+    //double taub = 1.0/rhob;
+    double pb = 100000;
 
-    //STATE sl = {ul, rhol, pl};  //ahead state, sa
-    //STATE sr = {ur, rhor, pr};
+    //STATE sa = {ua, rhoa, pa};  //ahead state
+    //STATE sb = {ub, rhob, pb};  //behind state
 
-    //1.use Hugoniot function to compute pb OR rhob (whichever not given)
-    //   --since pr given, compute rhor (or taur if easier)
+    //1.use Hugoniot function to compute pb OR rhob/taub (whichever not given)
 
-    double pr = behind_state_pressure(rhol,pl,rhor);            //pb
-    //double taur = behind_state_specific_volume(rhol,pl,pr);   //taub
-    //double rhor = 1.0/taur;                                   //rhob
-    double ar = constant_state_soundspeed(rhor,pr);
+    //double pb = behind_state_pressure(rhoa,pa,rhob);
+    double taub = behind_state_specific_volume(rhoa,pa,pb);
+    double rhob = 1.0/taub;
+    double ab = constant_state_soundspeed(rhob,pb);
 
     //NOTE: M is mass flux in the shock-stationary frame, not the mach number
 
     //2.compute M from M^2 = (pr - pl)/(taul - taur)
     //2.compute M from M^2 = (pb - pa)/(taua - taub)
 
-    double M = std::sqrt((pr - pl)/(taul - taur));
+    double M = sign*std::sqrt((pb - pa)/(taua - taub));
+    printf("M = %g\n\n",M);
 
     //3.set M = (pr - pl)/(ul - ur) and compute ur
     //3.set M = (pb - pa)/(ua - ub) and compute ub
 
-    double ur = ul - (pr - pl)/M;
+    double ub = ua - (pb - pa)/M;
 
-    printf("ur = %g\n",ur);
-    printf("rhor = %g\n",rhor);
-    printf("pr = %g\n",pr);
-    printf("ar = %g\n\n",ar);
+    printf("ub = %g\n",ub);
+    printf("rhob = %g\n",rhob);
+    printf("pb = %g\n",pb);
+    printf("ab = %g\n\n",ab);
 
     //TODO: check prandtl relation, ua and ub have same sign for shock
 
@@ -70,12 +89,12 @@ int main(int argc, char* argv[])
     //  i.e. rhoa < rhob && pa < pb
 
     bool entropy_condition = true;
-    if (rhol >= rhor)
+    if (rhoa >= rhob)
     {
         entropy_condition = false;
         printf("ahead state density not less than behind state density\n");
     }
-    if (pl >= pr)
+    if (pa >= pb)
     {
         entropy_condition = false;
         printf("ahead state pressure not less than behind state pressure\n");
@@ -85,8 +104,12 @@ int main(int argc, char* argv[])
         printf("entropy condition not satisfied\n");
     }
 
-    double shock_speed = (rhol*ul - rhor*ur)/(rhol - rhor);
+    double shock_speed = (rhoa*ua - rhob*ub)/(rhoa - rhob);
+    double mach = (ua - shock_speed)/aa;
+    //double mach = (shock_speed - ua)/aa;
+
     printf("shock_speed = %g\n",shock_speed);
+    printf("mach = %g\n",mach);
 
     return 0;
 }
