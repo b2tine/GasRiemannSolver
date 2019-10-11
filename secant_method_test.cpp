@@ -1,4 +1,4 @@
-#include "secantmethod.h"
+#include "secant_method.h"
 
 
 double polynomialFunction(double x)

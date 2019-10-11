@@ -1,4 +1,5 @@
 #include "riemann_problem.h"
+#include "secant_method.h"
 
 int randsign()
 {
@@ -119,23 +120,18 @@ int main(int argc, char* argv[])
     double pg0 = 0.5*(pl+pr);
     double pg1 = pg0 + randsign()*half_prange;
 
-    //Solve F(Pslip) = 0 using the secant method
-    double Pslip = secantMethod(RP_Function,pg0,pg1);
+    //Solve F(Pslip) = 0 using the secant method to
+    //find the pressure at the contact discontinuity
+    RP_Function F(sl,sr);
+    double Pslip = secantMethod(F,pg0,pg1);
     
+    std::cout << "sl = " << sl;
+    std::cout << "sr = " << sr;
+    std::cout << "Pslip = " << Pslip << "\n";
     
-    //TODO: Write functions for ul_star and ur_star, or
-    //      LeftCentereredWave() and RightCenteredWave().
-
-
-
-    //.... to find the pressure at the
-    //contact discontinuity --> use to compute velocities and densities.
-    //
-    //  For each iteration, compare P to the ahead and behind state pressures to
-    //  determine if the state if the LCW/RCW is a shock or rarefaction, and compute
-    //  the appropriate value for each.
-    //
-
+    //TODO: compute shocklines, fan regions etc.
+    //      provide solution for any (x,t) pair;
+    //      locate region of point and compute solution.
 
     return 0;
 }

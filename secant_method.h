@@ -1,5 +1,5 @@
-#ifndef SECANTMETHOD_H
-#define SECANTMETHOD_H
+#ifndef SECANT_METHOD_H
+#define SECANT_METHOD_H
 
 #include <exception>
 #include <iostream>

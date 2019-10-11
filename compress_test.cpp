@@ -107,6 +107,9 @@ int main(int argc, char* argv[])
     printf("shock_speed = %g\n",shock_speed);
     printf("mach = %g\n",mach);
 
+    //TODO: compute shock line and give solution for any (x,t) pair;
+    //      locate region of point and compute solution.
+
     return 0;
 }
 
