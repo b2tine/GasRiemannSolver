@@ -11,6 +11,9 @@ void piston_withdraw_point_locate(
 //u1 is the velocity with which the piston head is withdrawn,
 //and rho1, p1 are near-piston state variables.
 
+//LEFT piston withdraw creates a "GAMMA_MINUS" simple wave (S-)
+//RIGHT piston withdraw creates a "GAMMA_PLUS" simple wave (S+)
+
 int main(int argc, char** argv)
 {
     double sign = 1.0;
@@ -92,7 +95,7 @@ void piston_withdraw_point_locate(
 
         if (CplusLeft <= C && C <= CplusRight)
         {
-            printf("(x,t) = (%g, %g) in LCW fan region, S-\n\n",x,t);
+            printf("(x,t) = (%g, %g) in fan region, S-\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
             double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
             double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
@@ -106,13 +109,13 @@ void piston_withdraw_point_locate(
         }
         else if (C < CplusLeft)
         {
-            printf("(x,t) = (%g, %g) in LCW near-piston "
+            printf("(x,t) = (%g, %g) in near-piston "
                     "constant region, S1\n\n",x,t);
             //TODO: return u1, rho1, p1
         }
         else
         {
-            printf("(x,t) = (%g, %g) in LCW far-piston "
+            printf("(x,t) = (%g, %g) in far-piston "
                     "constant region, S0\n\n",x,t);
             //TODO: return u0, rho0, p0
         }
@@ -126,7 +129,7 @@ void piston_withdraw_point_locate(
         
         if (CminusLeft <= C && C <= CminusRight)
         {
-            printf("(x,t) = (%g, %g) in RCW fan region, S+\n\n",x,t);
+            printf("(x,t) = (%g, %g) in fan region, S+\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
             double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
             double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
@@ -140,13 +143,13 @@ void piston_withdraw_point_locate(
         }
         else if (CminusRight < C)
         {
-            printf("(x,t) = (%g, %g) in RCW near-piston "
+            printf("(x,t) = (%g, %g) in near-piston "
                     "constant region, S1\n\n",x,t);
             //TODO: return u1, rho1, p1
         }
         else
         {
-            printf("(x,t) = (%g, %g) in RCW far-piston "
+            printf("(x,t) = (%g, %g) in far-piston "
                     "constant region, S0\n\n",x,t);
             //TODO: return u0, rho0, p0
         }

@@ -15,12 +15,22 @@ double LeftCenteredWave(double Pslip, const STATE& sl)
 {
     if (Pslip <= sl.p)
     {
-        //TODO: ul_star is rarefaction wave
-        return {};
+        //LCW is a S+ Simple Wave
+        double u0 = sl.u;
+        double rho0 = sl.rho;
+        double p0 = sl.p;
+        double a0 = constant_state_soundspeed(rho0,p0);
+
+        //near slip line state variables
+        double p1 = Pslip;
+        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
+        double a1 = constant_state_soundspeed(rho1,p1);
+        double u1 = u0 + 2.0*(a0 - a1)/(GAMMA-1.0);
+        return u1;
     }
     else
     {
-        //ul_star is Left Facing Shock wave
+        //LCW is Left Facing Shock Wave
         double ua = sl.u;
         double rhoa = sl.rho;
         double pa = sl.p;
@@ -40,15 +50,25 @@ double RightCenteredWave(double Pslip, const STATE& sr)
 {
     if (Pslip <= sr.p)
     {
-        //TODO: ur_star is rarefaction wave
-        return {};
+        //RCW is a S- Simple Wave
+        double u0 = sr.u;
+        double rho0 = sr.rho;
+        double p0 = sr.p;
+        double a0 = constant_state_soundspeed(rho0,p0);
+
+        //near slip line state variables
+        double p1 = Pslip;
+        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
+        double a1 = constant_state_soundspeed(rho1,p1);
+        double u1 = u0 - 2.0*(a0 - a1)/(GAMMA-1.0);
+        return u1;
     }
     else
     {
-        //ur_star is a Right Facing Shock wave
-        double ua = sl.u;
-        double rhoa = sl.rho;
-        double pa = sl.p;
+        //RCW is a Right Facing Shock Wave
+        double ua = sr.u;
+        double rhoa = sr.rho;
+        double pa = sr.p;
         double pb = Pslip;
 
         double taua = 1.0/rhoa;
