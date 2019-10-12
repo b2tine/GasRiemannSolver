@@ -50,7 +50,7 @@ double secantMethod(const F& f, double x0, double x1,
 {
     int i = 0;
     double xn = x1; 
-    while (f(xn) >= TOL && i < MAXITER)
+    while (std::abs(f(xn)) > TOL && i < MAXITER)
     {
         xn = x1 - f(x1)*(x1-x0)/(f(x1)-f(x0));
         x0 = x1;
