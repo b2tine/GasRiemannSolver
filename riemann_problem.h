@@ -11,12 +11,14 @@
 
 const double GAMMA = 1.4;
 
+enum class WAVETYPE {SHOCK,SIMPLE};
 
 struct STATE
 {
     double u;       //velocity
     double rho;     //density
     double p;       //pressure
+    double a;       //soundspeed
     //double gamma;
 
     void print() const
