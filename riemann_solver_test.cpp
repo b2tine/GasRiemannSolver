@@ -11,6 +11,7 @@ int randsign()
     return 2*(rand() % 2) - 1;
 }
 
+/*
 double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
 {
     if (Pslip > sl->p)
@@ -125,7 +126,7 @@ struct RP_Function
             - RightCenteredWave(P,sr_cen,sr);
     }
 };
-
+*/
 
 
 int main(int argc, char* argv[])
@@ -147,25 +148,26 @@ int main(int argc, char* argv[])
     STATE sr = {ur, rhor, pr, ar};
 
     //Need two initial guesses for P_slip to use secant method.
-    //Just using pl and pr for now, seems better than previous method
+    //TODO timings for othe guess (comment block below) instead
+    //of just using pl and pr.
     
-    //TODO: check if below works better now that secant method bug fixed
-    
-        /*
+    /* 
         double frac_prange = 0.05*std::abs(pl-pr);
         double pg0 = 0.5*(pl+pr);
         double pg1 = pg0 + randsign()*frac_prange;
         printf("frac_prange = %g\n",frac_prange);
         printf("pg0 = %g\npg1 = %g\n\n",pg0,pg1);
-        */
+    */
 
     //Solve F(Pslip) = ul_star(P_slip) - ur-star(P_slip) = 0
     //using the secant method to find the pressure at the contact discontinuity
-    RP_Function F(&sl,&sl_c,&sr_c,&sr);
-    double Pslip = secantMethod(F,pl,pr);
-    //double Pslip = secantMethod(F,pg0,pg1);
     
-    std::cout << "Pslip = " << Pslip << "\n";
+    RiemannProblem RP(&sl,&sl_c,&sr_c,&sr);
+    //RP_Function F(&sl,&sl_c,&sr_c,&sr);
+    //double Pslip = secantMethod(F,pl,pr);
+        //double Pslip = secantMethod(F,pg0,pg1);
+    
+    //std::cout << "Pslip = " << Pslip << "\n";
 
     std::cout << "sl = " << sl;
     std::cout << "sl_c = " << sl_c;
@@ -176,6 +178,7 @@ int main(int argc, char* argv[])
     //      contain the riemann problem solution along with
     //      characteristic slopes seperating them
 
+    /*
     WAVETYPE LCW, RCW;
     double left_shockspeed;
     double left_trailing_fan_slope;
@@ -184,6 +187,7 @@ int main(int argc, char* argv[])
     double right_leading_fan_slope;
     double right_shockspeed;
 
+    //TODO: detect vacuum state
     if (Pslip > sl.p)
     {
         LCW = WAVETYPE::SHOCK;
@@ -193,11 +197,8 @@ int main(int argc, char* argv[])
     else
     {
         LCW = WAVETYPE::SIMPLE;
-        double al = constant_state_soundspeed(sl.rho,sl.p);
-        left_trailing_fan_slope = sl.u - al;
-
-        double al_c = constant_state_soundspeed(sl_c.rho,sl_c.p);
-        left_leading_fan_slope = sl_c.u - al_c;
+        left_trailing_fan_slope = sl.u - sl.a;
+        left_leading_fan_slope = sl_c.u - sl_c.a;
     }
 
     double slip_slope = sl_c.u;
@@ -205,11 +206,8 @@ int main(int argc, char* argv[])
     if (Pslip < sr.p)
     {
         RCW = WAVETYPE::SIMPLE;
-        double ar_c = constant_state_soundspeed(sr_c.rho,sr_c.p);
-        right_leading_fan_slope = sr_c.u - ar_c;
-
-        double ar = constant_state_soundspeed(sr.rho,sr.p);
-        right_trailing_fan_slope = sr.u - ar;
+        right_leading_fan_slope = sr_c.u - sr_c.a;
+        right_trailing_fan_slope = sr.u - sr.a;
     }
     else
     {
@@ -217,15 +215,19 @@ int main(int argc, char* argv[])
         right_shockspeed =
             (sr.rho*sr.u - sr_c.rho*sr_c.u)/(sr.rho - sr_c.rho);
     }
+    */
 
-
-    //TODO: Given any (x,t), compare ksi = x/t to the slopes
-    //      computed above to determine the solution
+    //Given any (x,t), compare ksi = x/t to the slopes
+    //computed above to determine the solution
     
     //sample (x,t) point 
     double x = 0.5;
     double t = 0.02;
+
     double ksi = x/t;
+    double u_riemann = RP(ksi);
+
+    /*
     double u_riemann;
 
     if (ksi < slip_slope)
@@ -272,6 +274,7 @@ int main(int argc, char* argv[])
 
         }
     }
+    */
 
     std::cout << "u_riemann = " << u_riemann << "\n";
 

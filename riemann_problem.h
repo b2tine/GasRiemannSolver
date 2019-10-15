@@ -8,6 +8,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <limits>
+
+const double HUGE = std::numeric_limits<double>::max();
+
 
 const double GAMMA = 1.4;
 
@@ -33,8 +37,59 @@ struct STATE
 };
 
 
-enum class PISTONDIR {LEFT,RIGHT};
+double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
+double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
 
+
+struct RP_Function
+{
+    STATE *sl, *sl_cen, *sr_cen, *sr;
+
+    RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
+        : sl{sL}, sl_cen{sLC}, sr_cen{sRC}, sr{sR}
+    {}
+
+    double operator () (double P) const
+    {
+        return LeftCenteredWave(P,sl,sl_cen)
+            - RightCenteredWave(P,sr_cen,sr);
+    }
+};
+
+class RiemannProblem
+{
+    public:
+    
+        RiemannProblem(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
+            : sl{sL}, sl_c{sLC}, sr_c{sRC}, sr{sR}, rpfunc{sL,sLC,sRC,sR}
+        {
+            this->solve();
+        }
+
+        double operator () (double ksi);
+
+    private:
+
+        STATE *sl, *sl_c, *sr_c, *sr;
+        RP_Function rpfunc;
+
+        double Pslip;
+        WAVETYPE LCW, RCW;
+
+        double left_shockspeed {HUGE};
+        double left_trailing_fan_slope {HUGE};
+        double left_leading_fan_slope {HUGE};
+        double slip_slope {HUGE};
+        double right_trailing_fan_slope {-HUGE};
+        double right_leading_fan_slope {-HUGE};
+        double right_shockspeed {-HUGE};
+
+        void solve();
+};
+
+
+
+enum class PISTONDIR {LEFT,RIGHT};
 
 //SIMPLE WAVE FUNCTIONS
 
