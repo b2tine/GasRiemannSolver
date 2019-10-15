@@ -40,7 +40,7 @@ struct STATE
 double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
 double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
 
-
+/*
 struct RP_Function
 {
     STATE *sl, *sl_cen, *sr_cen, *sr;
@@ -55,6 +55,7 @@ struct RP_Function
             - RightCenteredWave(P,sr_cen,sr);
     }
 };
+*/
 
 class RiemannProblem
 {
@@ -68,10 +69,30 @@ class RiemannProblem
 
         double operator () (double ksi);
 
+        double operator () (double x, double t)
+        {
+            return this->operator()(x/t);
+        }
+
     private:
 
         STATE *sl, *sl_c, *sr_c, *sr;
-        RP_Function rpfunc;
+        
+        struct RP_Function
+        {
+            STATE *sl, *sl_cen, *sr_cen, *sr;
+
+            RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
+                : sl{sL}, sl_cen{sLC}, sr_cen{sRC}, sr{sR}
+            {}
+
+            double operator () (double P) const
+            {
+                return LeftCenteredWave(P,sl,sl_cen)
+                    - RightCenteredWave(P,sr_cen,sr);
+            }
+
+        } rpfunc;
 
         double Pslip;
         WAVETYPE LCW, RCW;
