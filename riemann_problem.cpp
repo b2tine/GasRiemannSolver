@@ -2,6 +2,29 @@
 
 //TODO: get GAMMA from STATE or as function parameter
 
+
+STATE::STATE(double U, double RHO, double P)
+    : u{U}, rho{RHO}, p{P}
+{
+    if (rho > 0.0)
+        a = constant_state_soundspeed(rho,p);
+}
+
+STATE::STATE(double U, double RHO, double P, const std::string& ID)
+    : STATE{U,RHO,P}
+{
+    id = ID;
+}
+
+std::string STATE::printinfo() const
+{
+    char ostring[250];
+    sprintf(ostring,"%5s (%g, %g, %g, %g)",
+            ((id.empty()) ? "" : id + " :").c_str(),u,rho,p,a);
+    return std::string(ostring);
+}
+
+
 STATE RiemannProblem::operator () (double ksi)
 {
     //Locate solution region of ksi = x/t and compute the solution
@@ -25,7 +48,7 @@ STATE RiemannProblem::operator () (double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sl->u,sl->a);
                 double rho_fan = isentropic_relation_density(a_fan,sl->rho,sl->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE{u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                return STATE(u_fan,rho_fan,p_fan,"FAN");
             }
             else
                 return *sl_c;
@@ -51,7 +74,7 @@ STATE RiemannProblem::operator () (double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sr->u,sr->a);
                 double rho_fan = isentropic_relation_density(a_fan,sr->rho,sr->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE{u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                return STATE(u_fan,rho_fan,p_fan,"FAN");
             }
             else
                 return *sr;

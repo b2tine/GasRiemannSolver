@@ -26,20 +26,17 @@ enum class DIRECTION {LEFT,RIGHT};
 
 struct STATE
 {
-    double u;       //velocity
-    double rho;     //density
-    double p;       //pressure
-    double a;       //soundspeed
+    double u {0.0};       //velocity
+    double rho {-1.0};    //density
+    double p {-1.0};       //pressure
+    double a {-1.0};      //soundspeed
     //double gamma;
     std::string id;
 
-    std::string printinfo() const
-    {
-        char ostring[250];
-        sprintf(ostring,"%5s (%g, %g, %g, %g)",
-                ((id.empty()) ? "" : id + " :").c_str(),u,rho,p,a);
-        return std::string(ostring);
-    }
+    STATE(double U, double RHO, double P);
+    STATE(double U, double RHO, double P, const std::string& ID);
+
+    std::string printinfo() const;
 
     void print() const
     {

@@ -26,26 +26,24 @@ int main(int argc, char* argv[])
     double ul = 0.0;
     double rhol = 1.225;
     double pl = 100000;
-    double al = constant_state_soundspeed(rhol,pl);
 
     double ur = -1.0;
     double rhor = 1.1;
     double pr = 85000;
-    double ar = constant_state_soundspeed(rhor,pr);
     //END INPUT
-   
 
-    STATE sl = {ul, rhol, pl, al, "L"};      //sl.id = "L";
-    STATE sl_c = {0, 0, 0, 0, "LC"};         //sl_c.id = "LC"
-    STATE sr_c = {0, 0, 0, 0, "RC"};         //sr_c.id = "RC"
-    STATE sr = {ur, rhor, pr, ar, "R"};      //sr.id = "R";
+
+    STATE sl(ul,rhol,pl,"L");   
+    STATE sl_c(0,0,0,"LC");   
+    STATE sr_c(0,0,0,"RC");   
+    STATE sr(ur,rhor,pr,"R");   
 
     RiemannProblem RP(&sl,&sl_c,&sr_c,&sr);
     
     std::cout << sl << "\n";
     std::cout << sl_c << "\n";
     std::cout << sr_c << "\n";
-    std::cout << sr << "\n\n";
+    std::cout << sr << "\n";
 
     
     //OUTPUT
