@@ -89,10 +89,8 @@ class RiemannProblem
             solve();
         }
 
-        //double operator () (double ksi);
         STATE operator () (double ksi);
 
-        //double operator () (double x, double t)
         STATE operator () (double x, double t)
         {
             return this->operator()(x/t);
@@ -125,16 +123,22 @@ class VacuumStateException : public std::runtime_error
 {
     public:
 
-        VacuumStateException(const std::string& arg,
-                             const std::vector<STATE*>& vs)
-            : std::runtime_error{arg}, vstates{vs}
+        VacuumStateException(const std::string& arg)
+            : std::runtime_error{arg}
         {
             std::ostringstream oss;
-            oss << "ERROR: Vacuum State detected\n";
-            oss << arg << "\n";
+            oss << "ERROR: Vacuum State detected " << arg << ".\n";
+            message = oss.str();
+        }
+
+        VacuumStateException(const std::string& arg,
+                             const std::vector<STATE*>& vstates)
+            : VacuumStateException{arg}
+        {
+            std::ostringstream oss;
             for (STATE* s : vstates)
                 oss << *s << "\n";
-            message = oss.str();
+            message += oss.str();
         }
 
         const char* what() const noexcept override
@@ -145,13 +149,11 @@ class VacuumStateException : public std::runtime_error
     private:
 
         std::string message;
-        std::vector<STATE*> vstates;
 };
 
 
 //SHOCK WAVE FUNCTIONS
 
-//NOTE: This function used in RiemannProblem::solve()
 double behind_state_specific_volume(double rhoa, double pa, double pb);
 
 double behind_state_pressure(double rhoa, double pa, double rhob);
@@ -159,7 +161,6 @@ double behind_state_pressure(double rhoa, double pa, double rhob);
 
 //SIMPLE WAVE FUNCTIONS
 
-//NOTE: This function used in RiemannProblem::solve()
 double constant_state_soundspeed(double rho, double pres);
 
 double near_piston_soundspeed(double u1, DIRECTION dir,

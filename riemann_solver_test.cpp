@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
     std::cout << sr_c << "\n";
     std::cout << sr << "\n\n";
 
-    
     //TODO: write to files for all variables against ksi
+    
     //OUTPUT
     for (int i = 0; i < M; ++i)
     {
@@ -55,6 +55,13 @@ int main(int argc, char* argv[])
         printf("uR_vel(%g) = %g\n",ksi,uR_vel);
     }
 
+    /*
+    double ksi = 0.5/0.02;
+    STATE uR = RP(ksi);
+    double uR_vel = uR.u;
+    printf("uR_vel(%g) = %g\n",ksi,uR_vel);
+    */
+    
     return 0;
 }
 
