@@ -21,6 +21,9 @@ riemann_solver_test: riemann_solver_test.cpp riemann_problem.o
 riemann_problem.o: riemann_problem.h secant_method.h
 
 
+tags:
+	ctags *.cpp *.h
+
 clean:
 	$(RM) *.o
 	$(RM) withdraw_test
