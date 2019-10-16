@@ -21,6 +21,7 @@ const double HUGE = std::numeric_limits<double>::max();
 const double GAMMA = 1.4;
 
 enum class WAVETYPE {SHOCK,SIMPLE};
+enum class DIRECTION {LEFT,RIGHT};
 
 struct STATE
 {
@@ -88,9 +89,11 @@ class RiemannProblem
             solve();
         }
 
-        double operator () (double ksi);
+        //double operator () (double ksi);
+        STATE operator () (double ksi);
 
-        double operator () (double x, double t)
+        //double operator () (double x, double t)
+        STATE operator () (double x, double t)
         {
             return this->operator()(x/t);
         }
@@ -146,9 +149,6 @@ class VacuumStateException : public std::runtime_error
 };
 
 
-enum class PISTONDIR {LEFT,RIGHT};
-
-
 //SHOCK WAVE FUNCTIONS
 
 //NOTE: This function used in RiemannProblem::solve()
@@ -162,18 +162,22 @@ double behind_state_pressure(double rhoa, double pa, double rhob);
 //NOTE: This function used in RiemannProblem::solve()
 double constant_state_soundspeed(double rho, double pres);
 
-double near_piston_soundspeed(double u1, PISTONDIR dir,
+double near_piston_soundspeed(double u1, DIRECTION dir,
                               double u0, double rho0, double pres0);
 
 double isentropic_relation_density(double a1, double rho0, double pres0);
 
 double isentropic_relation_pressure(double a1, double rho1);
 
-double rarefaction_velocity(double x, double t, PISTONDIR dir,
-                            double u0, double a0);
+double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0);
 
-double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
-                              double u0, double a0);
+double rarefaction_velocity_xt(double x, double t,
+                            DIRECTION dir, double u0, double a0);
+
+double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0);
+
+double rarefaction_soundspeed_xt(double x, double t,
+                              DIRECTION dir, double u0, double a0);
 
 
 #endif

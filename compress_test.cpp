@@ -13,13 +13,13 @@
 int main(int argc, char* argv[])
 {
     double sign = 1.0;
-    PISTONDIR dir = PISTONDIR::RIGHT;
+    DIRECTION dir = DIRECTION::RIGHT;
     if (argc > 1)
     {
         if (argv[1][0] == 'l' || argv[1][0] == 'L')
         {
             sign = -1.0;
-            dir = PISTONDIR::LEFT;
+            dir = DIRECTION::LEFT;
         }
     }
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     double ua = sign*Uleft;
 
     printf("%s piston compression speed U = %g m/s\n\n",
-            (dir == PISTONDIR::LEFT) ? "LEFT" : "RIGHT", ua);
+            (dir == DIRECTION::LEFT) ? "LEFT" : "RIGHT", ua);
 
     double rhoa = 1.0;          // kg/m^3
     double taua = 1.0/rhoa;     // m^3/kg

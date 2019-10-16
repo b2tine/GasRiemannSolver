@@ -3,16 +3,22 @@
 
 int main(int argc, char* argv[])
 {
+    //INIT OUTPUT:
     double xl = atof(argv[1]);
     double xr = atof(argv[2]);
-    double t = atof(argv[3]);
-    //double m = atof(argv[3]);
-    //double t = atof(argv[4]);
+    double M = atof(argv[3]);
+    double t = atof(argv[4]);
 
-    assert (xl <= xr);
+    assert (xl <= xr && M >= 1);
     assert (t > 0.0);
 
-    //GIVEN: left and right states, sl and sr
+    double h = (M == 1) ? xr-xl : (xr-xl)/(M-1);
+    if (h == 0.0) M = 1;
+    //END INIT OUTPUT
+
+    
+    //TODO: read from input file
+    //INPUT: left and right states, sl and sr
     double ul = 0.0;
     double rhol = 1.225;
     double pl = 100000;
@@ -22,6 +28,8 @@ int main(int argc, char* argv[])
     double rhor = 1.1;
     double pr = 85000;
     double ar = constant_state_soundspeed(rhor,pr);
+    //END INPUT
+   
 
     STATE sl = {ul, rhol, pl, al, "L"};      //sl.id = "L";
     STATE sl_c = {0, 0, 0, 0, "LC"};         //sl_c.id = "LC"
@@ -35,25 +43,17 @@ int main(int argc, char* argv[])
     std::cout << sr_c << "\n";
     std::cout << sr << "\n\n";
 
-    /*
-    //sample (x,t) point 
-    double x = 0.5;
-    double t = 0.02;
-
-    double ksi = x/t;
-    */
-
-    int M = 25;
-    double h = (xr-xl)/M;
-    for (int i = 0; i < M+1; ++i)
+    
+    //TODO: write to files for all variables against ksi
+    //OUTPUT
+    for (int i = 0; i < M; ++i)
     {
         double x = xl + i*h;
         double ksi = x/t;
-        double u_riemann = RP(ksi);
-        printf("u_riemann(%g) = %g\n",ksi,u_riemann);
+        STATE uR = RP(ksi);
+        double uR_vel = uR.u;
+        printf("uR_vel(%g) = %g\n",ksi,uR_vel);
     }
-
-    //printf("u_riemann(%g/%g = %g) = %g\n",x,t,ksi,u_riemann);
 
     return 0;
 }

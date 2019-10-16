@@ -2,7 +2,72 @@
 
 //TODO: get GAMMA from STATE or as function parameter
 
-//TODO: return a STATE instead of just velocity
+STATE RiemannProblem::operator () (double ksi)
+{
+    //Locate solution region of ksi = x/t and compute the solution
+    if (ksi < slip_slope)
+    {
+        if (LCW == WAVETYPE::SHOCK)
+        {
+            if (ksi < left_shockspeed)
+                return *sl;
+            else
+                return *sl_c;
+        }
+        else
+        {
+            if (ksi < left_trailing_fan_slope)
+                return *sl;
+            else if (ksi < left_leading_fan_slope)
+            {
+                //double u_fan = (sl->u*(GAMMA-1.0) + 2.0*(ksi + sl->a))/(GAMMA+1.0); 
+                DIRECTION dir = DIRECTION::RIGHT;
+                double u_fan = rarefaction_velocity(ksi,dir,sl->u,sl->a);
+                double a_fan = rarefaction_soundspeed(ksi,dir,sl->u,sl->a);
+                double rho_fan = isentropic_relation_density(a_fan,sl->rho,sl->p);
+                double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+                
+                return STATE{u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                //STATE uR = {u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                //return uR;
+            }
+            else
+                return *sl_c;
+        }
+    }
+    else
+    {
+        if (RCW == WAVETYPE::SHOCK)
+        {
+            if (ksi < right_shockspeed)
+                return *sr_c;
+            else
+                return *sr;
+        }
+        else
+        {
+            if (ksi < right_leading_fan_slope)
+                return *sr_c;
+            else if (ksi < right_trailing_fan_slope)
+            {
+                //double u_fan = (sr->u*(GAMMA-1.0) + 2.0*(ksi - sr->a))/(GAMMA+1.0); 
+                DIRECTION dir = DIRECTION::LEFT;
+                double u_fan = rarefaction_velocity(ksi,dir,sr->u,sr->a);
+                double a_fan = rarefaction_soundspeed(ksi,dir,sr->u,sr->a);
+                double rho_fan = isentropic_relation_density(a_fan,sr->rho,sr->p);
+                double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
+                
+                return STATE{u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                //STATE uR = {u_fan,rho_fan,p_fan,a_fan,"FAN"};
+                //return uR;
+            }
+            else
+                return *sr;
+        }
+    }
+}
+
+/*
 double RiemannProblem::operator () (double ksi)
 {
     double u_riemann;
@@ -54,6 +119,7 @@ double RiemannProblem::operator () (double ksi)
 
     return u_riemann;
 }
+*/
 
 void RiemannProblem::solve()
 {
@@ -231,11 +297,11 @@ double constant_state_soundspeed(double rho, double pres)
     return std::sqrt(GAMMA*pres/rho);
 }
 
-double near_piston_soundspeed(double u1, PISTONDIR dir,
+double near_piston_soundspeed(double u1, DIRECTION dir,
         double u0, double rho0, double pres0)
        
 {
-    double sign = ((dir == PISTONDIR::LEFT) ? 1.0 : -1.0);
+    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     double a0 = constant_state_soundspeed(rho0,pres0);
     double a = a0 + sign*0.5*(GAMMA-1.0)*(u1-u0);
     
@@ -262,20 +328,23 @@ double isentropic_relation_pressure(double a1, double rho1)
     return a1*a1*rho1/GAMMA;
 }
 
-double rarefaction_velocity(double x, double t, PISTONDIR dir,
-                            double u0, double a0)
+double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0)
 {
-    assert(t > 0.0);
-    double sign = ((dir == PISTONDIR::LEFT) ? 1.0 : -1.0);
-    return (2.0*(x/t - sign*a0) + u0*(GAMMA-1.0))/(GAMMA+1.0);
+    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
+    return (u0*(GAMMA-1.0) + 2.0*(ksi - sign*a0))/(GAMMA+1.0);
 }
 
-double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
-                              double u0, double a0)
+double rarefaction_velocity_xt(double x, double t,
+                               DIRECTION dir, double u0, double a0)
 {
     assert(t > 0.0);
-    double sign = ((dir == PISTONDIR::LEFT) ? 1.0 : -1.0);
-    double a_fan = a0 + sign*(x/t - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
+    return rarefaction_velocity(x/t,dir,u0,a0);
+}
+
+double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0)
+{
+    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
+    double a_fan = a0 + sign*(ksi - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
     if (a_fan <= 0.0)
     {
         //TODO: throw an exception
@@ -285,5 +354,11 @@ double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
     return a_fan;
 }
 
+double rarefaction_soundspeed_xt(double x, double t,
+                                 DIRECTION dir, double u0, double a0)
+{
+    assert(t > 0.0);
+    return rarefaction_soundspeed(x/t,dir,u0,a0);
+}
 
 

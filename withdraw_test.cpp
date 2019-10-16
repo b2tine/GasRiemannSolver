@@ -2,7 +2,7 @@
 
 
 void piston_withdraw_point_locate(
-        double x, double t, PISTONDIR dir,
+        double x, double t, DIRECTION dir,
         double u1, double u0, double rho0, double p0, double a0);
 
 
@@ -17,13 +17,13 @@ void piston_withdraw_point_locate(
 int main(int argc, char** argv)
 {
     double sign = 1.0;
-    PISTONDIR dir = PISTONDIR::LEFT;
+    DIRECTION dir = DIRECTION::LEFT;
     if (argc > 1)
     {
         if (argv[1][0] == 'r' || argv[1][0] == 'R')
         {
             sign = -1.0;
-            dir = PISTONDIR::RIGHT;
+            dir = DIRECTION::RIGHT;
         }
     }
 
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     double u1 = sign*Uleft;
 
     printf("%s piston withdrawal speed U = %g m/s\n\n",
-            (dir == PISTONDIR::LEFT) ? "LEFT" : "RIGHT", u1);
+            (dir == DIRECTION::LEFT) ? "LEFT" : "RIGHT", u1);
 
     double u0 = 0.0;        // m/s
     double rho0 = 1.225;    // kg/m^3
@@ -64,8 +64,8 @@ int main(int argc, char** argv)
     
     
     /*
-    double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
-    double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+    double u_fan = rarefaction_velocity_xt(x,t,dir,u0,a0);
+    double a_fan = rarefaction_soundspeed_xt(x,t,dir,u0,a0);
     double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
     double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
     
@@ -81,12 +81,12 @@ int main(int argc, char** argv)
 
 //TODO: pass in STATE* data structures
 void piston_withdraw_point_locate(
-        double x, double t, PISTONDIR dir,
+        double x, double t, DIRECTION dir,
         double u1, double u0, double rho0, double p0, double a0)
 {
     double C = x/t;
     printf("C = %g\n",C);
-    if (dir == PISTONDIR::LEFT)
+    if (dir == DIRECTION::LEFT)
     {
         double CplusLeft = 0.5*((GAMMA+1.0)*u1 - (GAMMA-1.0)*u0) + a0;
         double CplusRight = u0 + a0;
@@ -97,8 +97,8 @@ void piston_withdraw_point_locate(
         {
             printf("(x,t) = (%g, %g) in fan region, S-\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
-            double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
-            double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+            double u_fan = rarefaction_velocity_xt(x,t,dir,u0,a0);
+            double a_fan = rarefaction_soundspeed_xt(x,t,dir,u0,a0);
             double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
             double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
             
@@ -131,8 +131,8 @@ void piston_withdraw_point_locate(
         {
             printf("(x,t) = (%g, %g) in fan region, S+\n\n",x,t);
             //TODO: Return u_fan, rho_fan, p_fan.
-            double u_fan = rarefaction_velocity(x,t,dir,u0,a0);
-            double a_fan = rarefaction_soundspeed(x,t,dir,u0,a0);
+            double u_fan = rarefaction_velocity_xt(x,t,dir,u0,a0);
+            double a_fan = rarefaction_soundspeed_xt(x,t,dir,u0,a0);
             double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
             double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
             
