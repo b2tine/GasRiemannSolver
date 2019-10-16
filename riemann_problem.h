@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <exception>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -31,7 +32,6 @@ struct STATE
     double a;       //soundspeed
     //double gamma;
     std::string id;
-    //std::string id {};
 
     std::string printinfo() const
     {
@@ -70,8 +70,8 @@ struct RP_Function
     //Note: This is not exactly a const method; the STATEs
     //      themselves are being modified in LeftCeteredWave() and
     //      RightCenteredWave() through their pointers.
-    //      We need the const modifier in order for RP_Functions to work
-    //      with the secantMethod() template function.
+    //      We need the const modifier in order for RP_Function
+    //      to work with the secantMethod() template function.
     double operator () (double P) const
     {
         return LeftCenteredWave(P,sleft,sleft_center)

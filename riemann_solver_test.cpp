@@ -6,11 +6,15 @@ int main(int argc, char* argv[])
     //INIT OUTPUT:
     double xl = atof(argv[1]);
     double xr = atof(argv[2]);
-    double M = atof(argv[3]);
-    double t = atof(argv[4]);
-
+    int M = atoi(argv[3]);
     assert (xl <= xr && M >= 1);
-    assert (t > 0.0);
+    
+    double t = -1.0;
+    if (argc > 4)
+    {
+        t = atof(argv[4]);
+        assert (t > 0.0);
+    }
 
     double h = (M == 1) ? xr-xl : (xr-xl)/(M-1);
     if (h == 0.0) M = 1;
@@ -43,25 +47,32 @@ int main(int argc, char* argv[])
     std::cout << sr_c << "\n";
     std::cout << sr << "\n\n";
 
-    //TODO: write to files for all variables against ksi
     
     //OUTPUT
+    std::ofstream ufile("velocity-xt.txt");
+    std::ofstream rhofile("density-xt.txt");
+    std::ofstream pfile("pressure-xt.txt");
+    std::ofstream afile("soundspeed-xt.txt");
+
     for (int i = 0; i < M; ++i)
     {
-        double x = xl + i*h;
-        double ksi = x/t;
+        double ksi = xl + i*h;
+        if (t > 0.0) ksi /= t;
+
         STATE uR = RP(ksi);
-        double uR_vel = uR.u;
-        printf("uR_vel(%g) = %g\n",ksi,uR_vel);
+        
+        ufile << ksi << " " << uR.u << "\n";
+        rhofile << ksi << " " << uR.rho << "\n";
+        pfile << ksi << " " << uR.p << "\n";
+        afile << ksi << " " << uR.a << "\n";
     }
 
-    /*
-    double ksi = 0.5/0.02;
-    STATE uR = RP(ksi);
-    double uR_vel = uR.u;
-    printf("uR_vel(%g) = %g\n",ksi,uR_vel);
-    */
-    
+    ufile.close();
+    rhofile.close();
+    pfile.close();
+    afile.close();
+    //END OUTPUT
+
     return 0;
 }
 
