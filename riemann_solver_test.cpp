@@ -1,4 +1,5 @@
 #include "riemann_problem.h"
+#include "util.h"
 
 
 int main(int argc, char* argv[])
@@ -47,10 +48,13 @@ int main(int argc, char* argv[])
 
     
     //OUTPUT
-    std::ofstream ufile("velocity-xt.txt");
-    std::ofstream rhofile("density-xt.txt");
-    std::ofstream pfile("pressure-xt.txt");
-    std::ofstream afile("soundspeed-xt.txt");
+    std::string outdir("out-RP/");
+    create_directory(outdir);
+
+    std::ofstream ufile(outdir+"velocity-xt.txt");
+    std::ofstream rhofile(outdir+"density-xt.txt");
+    std::ofstream pfile(outdir+"pressure-xt.txt");
+    std::ofstream afile(outdir+"soundspeed-xt.txt");
 
     for (int i = 0; i < M; ++i)
     {

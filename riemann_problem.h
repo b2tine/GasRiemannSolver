@@ -28,13 +28,24 @@ struct STATE
 {
     double u {0.0};       //velocity
     double rho {-1.0};    //density
-    double p {-1.0};       //pressure
+    double p {-1.0};      //pressure
     double a {-1.0};      //soundspeed
-    //double gamma;
+    //double gamma;       //specific heat ratio
+    
     std::string id;
+
+    STATE() = default;
+    
+    STATE(const STATE&) = default;
+    STATE& operator=(const STATE&) = default;
+
+    STATE(STATE&&) = default;
+    STATE& operator=(STATE&&) = default;
 
     STATE(double U, double RHO, double P);
     STATE(double U, double RHO, double P, const std::string& ID);
+    STATE(double U, double RHO, double P, double A);
+    STATE(double U, double RHO, double P, double A, const std::string& ID);
 
     std::string printinfo() const;
 
@@ -69,7 +80,7 @@ struct RP_Function
     //      RightCenteredWave() through their pointers.
     //      We need the const modifier in order for RP_Function
     //      to work with the secantMethod() template function.
-    double operator () (double P) const
+    double operator()(double P) const
     {
         return LeftCenteredWave(P,sleft,sleft_center)
             - RightCenteredWave(P,sright_center,sright);
@@ -86,9 +97,9 @@ class RiemannProblem
             solve();
         }
 
-        STATE operator () (double ksi);
+        STATE operator()(double ksi);
 
-        STATE operator () (double x, double t)
+        STATE operator()(double x, double t)
         {
             return this->operator()(x/t);
         }

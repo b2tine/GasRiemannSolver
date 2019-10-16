@@ -13,12 +13,14 @@ compress_test: compress_test.cpp riemann_problem.o
 secant_method_test: secant_method_test.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-riemann_solver_test: riemann_solver_test.cpp riemann_problem.o
+riemann_solver_test: riemann_solver_test.cpp riemann_problem.o util.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 
 
 riemann_problem.o: riemann_problem.h secant_method.h
+
+util.o: util.h
 
 
 tags:

@@ -16,6 +16,16 @@ STATE::STATE(double U, double RHO, double P, const std::string& ID)
     id = ID;
 }
 
+STATE::STATE(double U, double RHO, double P, double A)
+    : u{U}, rho{RHO}, p{P}, a{A}
+{}
+
+STATE::STATE(double U, double RHO, double P, double A, const std::string& ID)
+    : STATE{U,RHO,P,A}
+{
+    id = ID;
+}
+
 std::string STATE::printinfo() const
 {
     char ostring[250];
@@ -25,7 +35,7 @@ std::string STATE::printinfo() const
 }
 
 
-STATE RiemannProblem::operator () (double ksi)
+STATE RiemannProblem::operator()(double ksi)
 {
     //Locate solution region of ksi = x/t and compute the solution
     if (ksi < slip_slope)
@@ -48,7 +58,7 @@ STATE RiemannProblem::operator () (double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sl->u,sl->a);
                 double rho_fan = isentropic_relation_density(a_fan,sl->rho,sl->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(u_fan,rho_fan,p_fan,"FAN");
+                return STATE(u_fan,rho_fan,p_fan,a_fan);
             }
             else
                 return *sl_c;
@@ -74,7 +84,7 @@ STATE RiemannProblem::operator () (double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sr->u,sr->a);
                 double rho_fan = isentropic_relation_density(a_fan,sr->rho,sr->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(u_fan,rho_fan,p_fan,"FAN");
+                return STATE(u_fan,rho_fan,p_fan,a_fan);
             }
             else
                 return *sr;
