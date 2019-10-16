@@ -22,15 +22,24 @@ int main(int argc, char* argv[])
     //END INIT OUTPUT
 
     
-    //TODO: read from input file
-    //INPUT: left and right states, sl and sr
-    double ul = 0.0;
-    double rhol = 1.225;
-    double pl = 100000;
+    //INPUT: Left and Right states, sl and sr
+    std::ifstream infile("in-RP");
 
-    double ur = -1.0;
-    double rhor = 1.1;
-    double pr = 85000;
+    std::vector<double> init;
+    while (!infile.eof())
+    {
+        double val;
+        infile >> val;
+        init.push_back(val);
+    }
+
+    double ul = init[0];
+    double rhol = init[1];
+    double pl = init[2];
+
+    double ur = init[3];
+    double rhor = init[4];
+    double pr = init[5];
     //END INPUT
 
 
@@ -51,10 +60,10 @@ int main(int argc, char* argv[])
     std::string outdir("out-RP/");
     create_directory(outdir);
 
-    std::ofstream ufile(outdir+"velocity-xt.txt");
-    std::ofstream rhofile(outdir+"density-xt.txt");
-    std::ofstream pfile(outdir+"pressure-xt.txt");
-    std::ofstream afile(outdir+"soundspeed-xt.txt");
+    std::ofstream ufile(outdir+"velocity.txt");
+    std::ofstream rhofile(outdir+"density.txt");
+    std::ofstream pfile(outdir+"pressure.txt");
+    std::ofstream afile(outdir+"soundspeed.txt");
 
     for (int i = 0; i < M; ++i)
     {
