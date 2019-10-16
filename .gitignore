@@ -9,3 +9,4 @@ riemann_solver_test
 tags
 
 *.txt
+out*
