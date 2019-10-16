@@ -27,9 +27,9 @@ int main()
     CubicPolynomial f(0,1,0,-1);
     std::cout << "f(1) = " << f(1) << "\n";
 
-    double root = secantMethod(f,0,1); //equivalent to instantiation on next line
-    double rootv = secantMethod<CubicPolynomial>(f,0,1);
-    double proot = secantMethod(polynomialFunction,0,1);
+    double root = secantMethod(f,0,0.5); //equivalent to instantiation on next line
+    double rootv = secantMethod<CubicPolynomial>(f,0,0.5);
+    double proot = secantMethod(polynomialFunction,0,0.5);
     
     std::cout << "root = " << root << "\n";
     std::cout << "rootv = " << rootv << "\n";

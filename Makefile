@@ -17,6 +17,10 @@ riemann_solver_test: riemann_solver_test.cpp riemann_problem.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 
+
+riemann_problem.o: riemann_problem.h secant_method.h
+
+
 clean:
 	$(RM) *.o
 	$(RM) withdraw_test

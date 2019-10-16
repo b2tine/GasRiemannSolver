@@ -10,10 +10,6 @@
 
 class NoConvergenceException : public std::runtime_error
 {
-    private:
-    
-        std::string message;
-    
     public:
 
         NoConvergenceException(const std::string& arg, double TOL, int MAXITER)
@@ -39,6 +35,11 @@ class NoConvergenceException : public std::runtime_error
         {
             return message.c_str();
         }
+    
+    private:
+    
+        std::string message;
+    
 };
 
 #define throwSecantMethodException(arg,tol,maxiter) \

@@ -2,44 +2,12 @@
 
 //TODO: get GAMMA from STATE or as function parameter
 
-void RiemannProblem::solve()
-{
-    Pslip = secantMethod(rpfunc,sl->p,sr->p);
-
-    //TODO: detect vacuum state
-    if (Pslip > sl->p)
-    {
-        LCW = WAVETYPE::SHOCK;
-        left_shockspeed =
-            (sl->rho*sl->u - sl_c->rho*sl_c->u)/(sl->rho - sl_c->rho);
-    }
-    else
-    {
-        LCW = WAVETYPE::SIMPLE;
-        left_trailing_fan_slope = sl->u - sl->a;
-        left_leading_fan_slope = sl_c->u - sl_c->a;
-    }
-
-    slip_slope = sl_c->u;
-
-    if (Pslip < sr->p)
-    {
-        RCW = WAVETYPE::SIMPLE;
-        right_leading_fan_slope = sr_c->u - sr_c->a;
-        right_trailing_fan_slope = sr->u - sr->a;
-    }
-    else
-    {
-        RCW = WAVETYPE::SHOCK;
-        right_shockspeed =
-            (sr->rho*sr->u - sr_c->rho*sr_c->u)/(sr->rho - sr_c->rho);
-    }
-}
-        
+//TODO: return a STATE instead of just velocity
 double RiemannProblem::operator () (double ksi)
 {
     double u_riemann;
 
+    //Locate solution region of ksi = x/t and compute the solution
     if (ksi < slip_slope)
     {
         if (LCW == WAVETYPE::SHOCK)
@@ -87,11 +55,60 @@ double RiemannProblem::operator () (double ksi)
     return u_riemann;
 }
 
+void RiemannProblem::solve()
+{
+    //Solve F(Pslip) = ul_star(P_slip) - ur-star(P_slip) = 0
+    Pslip = secantMethod(rpfunc,sl->p,sr->p);
+    detectVacuumState();
+
+    //Compute defining characteristics of Riemann Solution
+    if (Pslip > sl->p)
+    {
+        LCW = WAVETYPE::SHOCK;
+        left_shockspeed =
+            (sl->rho*sl->u - sl_c->rho*sl_c->u)/(sl->rho - sl_c->rho);
+    }
+    else
+    {
+        LCW = WAVETYPE::SIMPLE;
+        left_trailing_fan_slope = sl->u - sl->a;
+        left_leading_fan_slope = sl_c->u - sl_c->a;
+    }
+
+    slip_slope = sl_c->u;
+
+    if (Pslip < sr->p)
+    {
+        RCW = WAVETYPE::SIMPLE;
+        right_leading_fan_slope = sr_c->u - sr_c->a;
+        right_trailing_fan_slope = sr->u - sr->a;
+    }
+    else
+    {
+        RCW = WAVETYPE::SHOCK;
+        right_shockspeed =
+            (sr->rho*sr->u - sr_c->rho*sr_c->u)/(sr->rho - sr_c->rho);
+    }
+}
+
+void RiemannProblem::detectVacuumState()
+{
+    std::vector<STATE*> vacstates;
+    for (STATE* s : {sl, sl_c, sr_c, sr})
+    {
+        if (s->a <= 0.0)
+            vacstates.push_back(s);
+    }
+
+    if (!vacstates.empty())
+        throw VacuumStateException("",vacstates);
+}
+        
 double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
 {
     if (Pslip > sl->p)
     {
-        //LCW is Left Facing Shock (LFS) Wave
+        //LCW is Left Facing Shock Wave (LFS)
         double ua = sl->u;
         double rhoa = sl->rho;
         double pa = sl->p;
@@ -110,12 +127,12 @@ double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
         sl_center->rho = rhob;
         sl_center->p = pb;
         sl_center->a = constant_state_soundspeed(rhob,pb);
-
+        
         return ub;
     }
     else
     {
-        //LCW is a GAMMA PLUS (S+) Simple Wave
+        //LCW is a GAMMA PLUS Simple Wave (S+)
         double u0 = sl->u;
         double rho0 = sl->rho;
         double p0 = sl->p;
@@ -132,7 +149,7 @@ double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
         sl_center->rho = rho1;
         sl_center->p = p1;
         sl_center->a = a1;
-
+        
         return u1;
     }
 }
@@ -141,7 +158,7 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
 {
     if (Pslip <= sr->p)
     {
-        //RCW is a GAMMA MINUS (S-) Simple Wave
+        //RCW is a GAMMA MINUS Simple Wave (S-)
         double u0 = sr->u;
         double rho0 = sr->rho;
         double p0 = sr->p;
@@ -158,12 +175,12 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
         sr_center->rho = rho1;
         sr_center->p = p1;
         sr_center->a = a1;
-
+        
         return u1;
     }
     else
     {
-        //RCW is a Right Facing Shock (RFS) Wave
+        //RCW is a Right Facing Shock Wave (RFS)
         double ua = sr->u;
         double rhoa = sr->rho;
         double pa = sr->p;
@@ -182,13 +199,37 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
         sr_center->rho = rhob;
         sr_center->p = pb;
         sr_center->a = constant_state_soundspeed(rhob,pb);
-
+        
         return ub;
     }
 }
 
 
+//SHOCK WAVE FUNCTIONS
+
+//NOTE: This function used in RiemannProblem::solve()
+double behind_state_specific_volume(double rhoa, double pa, double pb)
+{
+    double GP = GAMMA + 1.0;
+    double GM = GAMMA - 1.0;
+    return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
+}
+
+double behind_state_pressure(double rhoa, double pa, double rhob)
+{
+    double GP = GAMMA + 1.0;
+    double GM = GAMMA - 1.0;
+    return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
+}
+
+
 //SIMPLE WAVE FUNCTIONS
+
+//NOTE: This function used in RiemannProblem::solve()
+double constant_state_soundspeed(double rho, double pres)
+{
+    return std::sqrt(GAMMA*pres/rho);
+}
 
 double near_piston_soundspeed(double u1, PISTONDIR dir,
         double u0, double rho0, double pres0)
@@ -207,11 +248,6 @@ double near_piston_soundspeed(double u1, PISTONDIR dir,
     return a;
 }
 
-double constant_state_soundspeed(double rho, double pres)
-{
-    return std::sqrt(GAMMA*pres/rho);
-}
-
 //a1 is the near piston soundspeed, or a soundspeed in the rarefaction fan.
 double isentropic_relation_density(double a1, double rho0, double pres0)
 {
@@ -226,7 +262,6 @@ double isentropic_relation_pressure(double a1, double rho1)
     return a1*a1*rho1/GAMMA;
 }
 
-//TODO: make pure functions of x/t (combine x,t into single argument)?
 double rarefaction_velocity(double x, double t, PISTONDIR dir,
                             double u0, double a0)
 {
@@ -248,23 +283,6 @@ double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
         exit(1);
     }
     return a_fan;
-}
-
-
-//SHOCK WAVE FUNCTIONS
-
-double behind_state_pressure(double rhoa, double pa, double rhob)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
-}
-
-double behind_state_specific_volume(double rhoa, double pa, double pb)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
 }
 
 

@@ -4,11 +4,16 @@
 #include "secant_method.h"
 
 #include <iostream>
+#include <exception>
+#include <sstream>
+#include <string>
+#include <vector>
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
 #include <limits>
+
 
 const double HUGE = std::numeric_limits<double>::max();
 
@@ -24,38 +29,54 @@ struct STATE
     double p;       //pressure
     double a;       //soundspeed
     //double gamma;
+    std::string id;
+    //std::string id {};
+
+    std::string printinfo() const
+    {
+        char ostring[250];
+        sprintf(ostring,"%5s (%g, %g, %g, %g)",
+                ((id.empty()) ? "" : id + " :").c_str(),u,rho,p,a);
+        return std::string(ostring);
+    }
 
     void print() const
     {
-        printf("(%g, %g, %g)\n",u,rho,p);
+        printf("%s",printinfo().c_str());
     }
 
-    friend std::ostream& operator << (std::ostream& out, const STATE& s)
+    friend std::ostream& operator << (std::ostream& os, const STATE& s)
     {
-        s.print();
+        os << s.printinfo();
+        return os;
     }
 };
 
 
 double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
+
 double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
 
-/*
+
 struct RP_Function
 {
-    STATE *sl, *sl_cen, *sr_cen, *sr;
+    STATE *sleft, *sleft_center, *sright_center, *sright;
 
     RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
-        : sl{sL}, sl_cen{sLC}, sr_cen{sRC}, sr{sR}
+        : sleft{sL}, sleft_center{sLC}, sright_center{sRC}, sright{sR}
     {}
 
+    //Note: This is not exactly a const method; the STATEs
+    //      themselves are being modified in LeftCeteredWave() and
+    //      RightCenteredWave() through their pointers.
+    //      We need the const modifier in order for RP_Functions to work
+    //      with the secantMethod() template function.
     double operator () (double P) const
     {
-        return LeftCenteredWave(P,sl,sl_cen)
-            - RightCenteredWave(P,sr_cen,sr);
+        return LeftCenteredWave(P,sleft,sleft_center)
+            - RightCenteredWave(P,sright_center,sright);
     }
 };
-*/
 
 class RiemannProblem
 {
@@ -64,7 +85,7 @@ class RiemannProblem
         RiemannProblem(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
             : sl{sL}, sl_c{sLC}, sr_c{sRC}, sr{sR}, rpfunc{sL,sLC,sRC,sR}
         {
-            this->solve();
+            solve();
         }
 
         double operator () (double ksi);
@@ -74,25 +95,12 @@ class RiemannProblem
             return this->operator()(x/t);
         }
 
+        //TODO: printing functions
+
     private:
 
         STATE *sl, *sl_c, *sr_c, *sr;
-        
-        struct RP_Function
-        {
-            STATE *sl, *sl_cen, *sr_cen, *sr;
-
-            RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
-                : sl{sL}, sl_cen{sLC}, sr_cen{sRC}, sr{sR}
-            {}
-
-            double operator () (double P) const
-            {
-                return LeftCenteredWave(P,sl,sl_cen)
-                    - RightCenteredWave(P,sr_cen,sr);
-            }
-
-        } rpfunc;
+        RP_Function rpfunc;
 
         double Pslip;
         WAVETYPE LCW, RCW;
@@ -100,20 +108,58 @@ class RiemannProblem
         double left_shockspeed {HUGE};
         double left_trailing_fan_slope {HUGE};
         double left_leading_fan_slope {HUGE};
-        double slip_slope {HUGE};
+        double slip_slope {0.0};
         double right_trailing_fan_slope {-HUGE};
         double right_leading_fan_slope {-HUGE};
         double right_shockspeed {-HUGE};
 
         void solve();
+        void detectVacuumState();
 };
 
+
+class VacuumStateException : public std::runtime_error
+{
+    public:
+
+        VacuumStateException(const std::string& arg,
+                             const std::vector<STATE*>& vs)
+            : std::runtime_error{arg}, vstates{vs}
+        {
+            std::ostringstream oss;
+            oss << "ERROR: Vacuum State detected\n";
+            oss << arg << "\n";
+            for (STATE* s : vstates)
+                oss << *s << "\n";
+            message = oss.str();
+        }
+
+        const char* what() const noexcept override
+        {
+            return message.c_str();
+        }
+
+    private:
+
+        std::string message;
+        std::vector<STATE*> vstates;
+};
 
 
 enum class PISTONDIR {LEFT,RIGHT};
 
+
+//SHOCK WAVE FUNCTIONS
+
+//NOTE: This function used in RiemannProblem::solve()
+double behind_state_specific_volume(double rhoa, double pa, double pb);
+
+double behind_state_pressure(double rhoa, double pa, double rhob);
+
+
 //SIMPLE WAVE FUNCTIONS
 
+//NOTE: This function used in RiemannProblem::solve()
 double constant_state_soundspeed(double rho, double pres);
 
 double near_piston_soundspeed(double u1, PISTONDIR dir,
@@ -128,13 +174,6 @@ double rarefaction_velocity(double x, double t, PISTONDIR dir,
 
 double rarefaction_soundspeed(double x, double t, PISTONDIR dir,
                               double u0, double a0);
-
-//SHOCK WAVE FUNCTIONS
-
-double behind_state_pressure(double rhoa, double pa, double rhob);
-
-double behind_state_specific_volume(double rhoa, double pa, double pb);
-
 
 
 #endif
