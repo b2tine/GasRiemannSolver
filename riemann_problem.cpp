@@ -208,6 +208,7 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
     }
 }
 
+//TODO: implement variable gamma
 
 //SHOCK WAVE FUNCTIONS
 
@@ -216,6 +217,7 @@ double behind_state_specific_volume(double rhoa, double pa, double pb)
     double GP = GAMMA + 1.0;
     double GM = GAMMA - 1.0;
     return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
+    //TODO: from Hugoniot function calculate for variable gamma
 }
 
 double behind_state_pressure(double rhoa, double pa, double rhob)
@@ -223,6 +225,7 @@ double behind_state_pressure(double rhoa, double pa, double rhob)
     double GP = GAMMA + 1.0;
     double GM = GAMMA - 1.0;
     return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
+    //TODO: from Hugoniot function calculate for variable gamma
 }
 
 
@@ -240,7 +243,8 @@ double near_piston_soundspeed(double u1, DIRECTION dir,
     double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     double a0 = constant_state_soundspeed(rho0,pres0);
     double a = a0 + sign*0.5*(GAMMA-1.0)*(u1-u0);
-    
+    //Variable Gamma:
+    //double a = (a0/(gamma0-1.0) + sign*0.5*(u1-u0))/(gamma1-1.0);
     if (a <= 0.0)
         throw VacuumStateException("near piston head");
     return a;
@@ -264,6 +268,9 @@ double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0)
 {
     double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     return (u0*(GAMMA-1.0) + 2.0*(ksi - sign*a0))/(GAMMA+1.0);
+    //Variable Gamma:
+    /*return (u0*(gamma1-1.0)
+            + 2.0*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0)))/(gamma1+1.0);*/
 }
 
 double rarefaction_velocity_xt(double x, double t,
@@ -277,6 +284,9 @@ double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0)
 {
     double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     double a_fan = a0 + sign*(ksi - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
+    //Variable Gamma:
+    /*double a_fan = a0*(gamma1-1.0)/(gamma0-1.0) 
+        + sign*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0) - u0)*(gamma1-1.0)/(gamma1+1.0);*/
     if (a_fan <= 0.0)
         throw VacuumStateException("in fan region");
     return a_fan;
