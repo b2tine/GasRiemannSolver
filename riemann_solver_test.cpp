@@ -33,22 +33,23 @@ int main(int argc, char* argv[])
         init.push_back(val);
     }
 
-    double ul = init[0];
-    double rhol = init[1];
+    double rhol = init[0];
+    double ul = init[1];
     double pl = init[2];
 
-    double ur = init[3];
-    double rhor = init[4];
+    double rhor = init[3];
+    double ur = init[4];
     double pr = init[5];
     //END INPUT
 
 
-    STATE sl(ul,rhol,pl,"L");   
+    STATE sl(rhol,ul,pl,"L");   
     STATE sl_c(0,0,0,"LC");   
     STATE sr_c(0,0,0,"RC");   
-    STATE sr(ur,rhor,pr,"R");   
+    STATE sr(rhor,ur,pr,"R");   
 
     RiemannProblem RP(&sl,&sl_c,&sr_c,&sr);
+    RP.solve();
     
     std::cout << sl << "\n";
     std::cout << sl_c << "\n";
@@ -60,8 +61,8 @@ int main(int argc, char* argv[])
     std::string outdir("out-RP/");
     create_directory(outdir);
 
-    std::ofstream ufile(outdir+"velocity.txt");
     std::ofstream rhofile(outdir+"density.txt");
+    std::ofstream ufile(outdir+"velocity.txt");
     std::ofstream pfile(outdir+"pressure.txt");
     std::ofstream afile(outdir+"soundspeed.txt");
 
@@ -72,14 +73,14 @@ int main(int argc, char* argv[])
 
         STATE uR = RP(ksi);
         
-        ufile << ksi << " " << uR.u << "\n";
         rhofile << ksi << " " << uR.rho << "\n";
+        ufile << ksi << " " << uR.u << "\n";
         pfile << ksi << " " << uR.p << "\n";
         afile << ksi << " " << uR.a << "\n";
     }
 
-    ufile.close();
     rhofile.close();
+    ufile.close();
     pfile.close();
     afile.close();
     //END OUTPUT

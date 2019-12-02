@@ -3,25 +3,25 @@
 //TODO: get GAMMA from STATE or as function parameter
 
 
-STATE::STATE(double U, double RHO, double P)
-    : u{U}, rho{RHO}, p{P}
+STATE::STATE(double RHO, double U, double P)
+    : rho{RHO}, u{U}, p{P}
 {
     if (rho > 0.0)
         a = constant_state_soundspeed(rho,p);
 }
 
-STATE::STATE(double U, double RHO, double P, const std::string& ID)
-    : STATE{U,RHO,P}
+STATE::STATE(double RHO, double U, double P, const std::string& ID)
+    : STATE{RHO,U,P}
 {
     id = ID;
 }
 
-STATE::STATE(double U, double RHO, double P, double A)
-    : u{U}, rho{RHO}, p{P}, a{A}
+STATE::STATE(double RHO, double U, double P, double A)
+    : rho{RHO}, u{U}, p{P}, a{A}
 {}
 
-STATE::STATE(double U, double RHO, double P, double A, const std::string& ID)
-    : STATE{U,RHO,P,A}
+STATE::STATE(double RHO, double U, double P, double A, const std::string& ID)
+    : STATE{RHO,U,P,A}
 {
     id = ID;
 }
@@ -30,7 +30,7 @@ std::string STATE::printinfo() const
 {
     char ostring[250];
     sprintf(ostring,"%5s (%g, %g, %g, %g)",
-            ((id.empty()) ? "" : id + " :").c_str(),u,rho,p,a);
+            ((id.empty()) ? "" : id + " :").c_str(),rho,u,p,a);
     return std::string(ostring);
 }
 
@@ -58,7 +58,7 @@ STATE RiemannProblem::operator()(double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sl->u,sl->a);
                 double rho_fan = isentropic_relation_density(a_fan,sl->rho,sl->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(u_fan,rho_fan,p_fan,a_fan);
+                return STATE(rho_fan,u_fan,p_fan,a_fan);
             }
             else
                 return *sl_c;
@@ -84,7 +84,7 @@ STATE RiemannProblem::operator()(double ksi)
                 double a_fan = rarefaction_soundspeed(ksi,dir,sr->u,sr->a);
                 double rho_fan = isentropic_relation_density(a_fan,sr->rho,sr->p);
                 double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(u_fan,rho_fan,p_fan,a_fan);
+                return STATE(rho_fan,u_fan,p_fan,a_fan);
             }
             else
                 return *sr;

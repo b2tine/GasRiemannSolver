@@ -26,8 +26,8 @@ enum class DIRECTION {LEFT,RIGHT};
 
 struct STATE
 {
-    double u {0.0};       //velocity
     double rho {-1.0};    //density
+    double u {0.0};       //velocity
     double p {-1.0};      //pressure
     double a {-1.0};      //soundspeed
     //double gamma;       //specific heat ratio
@@ -42,10 +42,10 @@ struct STATE
     STATE(STATE&&) = default;
     STATE& operator=(STATE&&) = default;
 
-    STATE(double U, double RHO, double P);
-    STATE(double U, double RHO, double P, const std::string& ID);
-    STATE(double U, double RHO, double P, double A);
-    STATE(double U, double RHO, double P, double A, const std::string& ID);
+    STATE(double RHO, double U, double P);
+    STATE(double RHO, double U, double P, const std::string& ID);
+    STATE(double RHO, double U, double P, double A);
+    STATE(double RHO, double U, double P, double A, const std::string& ID);
 
     std::string printinfo() const;
 
@@ -93,9 +93,9 @@ class RiemannProblem
     
         RiemannProblem(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
             : sl{sL}, sl_c{sLC}, sr_c{sRC}, sr{sR}, rpfunc{sL,sLC,sRC,sR}
-        {
-            solve();
-        }
+        {}
+
+        void solve();
 
         STATE operator()(double ksi);
 
@@ -122,7 +122,6 @@ class RiemannProblem
         double right_leading_fan_slope {-HUGE};
         double right_shockspeed {-HUGE};
 
-        void solve();
         void detectVacuumState();
 };
 
