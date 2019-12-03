@@ -125,6 +125,7 @@ int main()
         //Domain Interior
         for (int i = 1; i < N-1; ++i)
         {
+            //Compute Godunov Flux
             RiemannProblem RP_plus(&U[i],&U[i+1]);
             RP_plus.solve();
             STATE VP = RP_plus(0.0);
@@ -139,6 +140,7 @@ int main()
             QFlux[2] = VP.u*(0.5*VP.rho*VP.u*VP.u + VP.p/(GAMMA - 1.0) + VP.p)
                         - VM.u*(0.5*VM.rho*VM.u*VM.u + VM.p/(GAMMA - 1.0) + VM.p);
 
+            //Update Conserved Variables and States
             double dens = Q[i][0] - QFlux[0]*dt/dx;
             double momn = Q[i][1] - QFlux[1]*dt/dx;
             double energy = Q[i][2] - QFlux[2]*dt/dx;
@@ -152,7 +154,7 @@ int main()
             Unew[i].p = (energy - 0.5*momn*momn/dens)*(GAMMA - 1.0);
             Unew[i].computeSoundSpeed();
 
-            //record max_speed for new dt
+            //Record max_speed next time step
             double u = fabs(Unew[i].u);
             double a = Unew[i].a;
             double curr_max_speed = std::max((std::max(u,fabs(u-a))),(fabs(u+a)));
@@ -160,6 +162,7 @@ int main()
                 max_speed = curr_max_speed;
         }
 
+        //Update time step data
         if (max_speed > 0.0)
             max_dt = CFL*dx/max_speed;
  
