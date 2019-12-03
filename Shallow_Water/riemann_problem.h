@@ -22,7 +22,7 @@ enum class WAVETYPE {SHOCK,SIMPLE};
 enum class DIRECTION {LEFT,RIGHT};
 
 
-const double G = 9.8;
+const double G = 9.8; //gravity
 
 struct STATE
 {
