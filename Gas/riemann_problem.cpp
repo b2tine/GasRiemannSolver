@@ -123,8 +123,8 @@ void RiemannProblem::solve()
     if (Pslip < sr->p)
     {
         RCW = WAVETYPE::SIMPLE;
-        right_leading_fan_slope = sr_c->u - sr_c->a;
-        right_trailing_fan_slope = sr->u - sr->a;
+        right_leading_fan_slope = sr_c->u + sr_c->a;
+        right_trailing_fan_slope = sr->u + sr->a;
     }
     else
     {
