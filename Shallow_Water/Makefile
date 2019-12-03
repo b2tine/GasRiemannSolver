@@ -5,10 +5,10 @@ INCLUDE = -I../Common
 all: riemann_solver_test shallow1d
 
 
-#withdraw_test: withdraw_test.cpp riemann_problem.o
+#dambreak_test: dambreak_test.cpp riemann_problem.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
-#
-#compress_test: compress_test.cpp riemann_problem.o
+
+#borewave_test: borewave_test.cpp riemann_problem.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
 riemann_solver_test: riemann_solver_test.cpp riemann_problem.o ../Common/util.o
@@ -30,5 +30,7 @@ tags:
 
 clean:
 	$(RM) *.o
+	$(RM) dambreak_test
+	$(RM) borewave_test
 	$(RM) riemann_solver_test
 	$(RM) shallow1d

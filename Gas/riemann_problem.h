@@ -95,10 +95,10 @@ class RiemannProblem
             : sl{sL}, sl_c{new STATE(0,0,0,"LC")},
             sr_c{new STATE(0,0,0,"RC")}, sr{sR}
         {
-            rpfunc.sleft = sL;
+            rpfunc.sleft = sl;
             rpfunc.sleft_center = sl_c;
             rpfunc.sright_center = sr_c;
-            rpfunc.sright = sR;
+            rpfunc.sright = sr;
         }
 
         ~RiemannProblem()
@@ -133,8 +133,8 @@ class RiemannProblem
         double left_trailing_fan_slope {HUGE};
         double left_leading_fan_slope {HUGE};
         double slip_slope {0.0};
-        double right_trailing_fan_slope {-HUGE};
         double right_leading_fan_slope {-HUGE};
+        double right_trailing_fan_slope {-HUGE};
         double right_shockspeed {-HUGE};
 
         void detectVacuumState();

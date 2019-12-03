@@ -94,10 +94,10 @@ class RiemannProblem
             : sl{sL}, sl_c{new STATE(0,0,0,"LC")},
             sr_c{new STATE(0,0,0,"RC")}, sr{sR}
         {
-            rpfunc.sleft = sL;
+            rpfunc.sleft = sl;
             rpfunc.sleft_center = sl_c;
             rpfunc.sright_center = sr_c;
-            rpfunc.sright = sR;
+            rpfunc.sright = sr;
         }
 
         ~RiemannProblem()

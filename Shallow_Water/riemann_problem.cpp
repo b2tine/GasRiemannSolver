@@ -169,47 +169,31 @@ double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center)
     {
         //LCW is Left Facing Shock Wave (LFS)
         double ua = sl->u;
-        double rhoa = sl->rho;
-        double pa = sl->p;
-        double pb = Pslip;
+        double ha = sl->h;
 
-        double taua = 1.0/rhoa;
-        double taub = behind_state_specific_volume(rhoa,pa,pb);
-        double rhob = 1.0/taub;
-        
-        //M > 0 this case
-        double M = std::sqrt((pb - pa)/(taua - taub));
-        double ub = ua - (pb - pa)/M;
+        double hb = Hctr;
+        double ub = ua + (ha - hb)*sqrt(0.5*G*(ha + hb)/(ha*hb));
         
         //save center state variables
         sl_center->u = ub;
-        sl_center->rho = rhob;
-        sl_center->p = pb;
-        sl_center->a = constant_state_soundspeed(rhob,pb);
+        sl_center->h = hb;
         
         return ub;
     }
     else
     {
         //LCW is a GAMMA PLUS Simple Wave (S+)
-        double u0 = sl->u;
-        double rho0 = sl->rho;
-        double p0 = sl->p;
-        double a0 = sl->a;
+        double ul = sl->u;
+        double hl = sl->h;
 
-        //near slip line state variables
-        double p1 = Pslip;
-        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
-        double a1 = constant_state_soundspeed(rho1,p1);
-        double u1 = u0 + 2.0*(a0 - a1)/(GAMMA-1.0);
+        double hl_c = Hctr;
+        double ul_c = ul + 2.0*(sqrt(G*hl) - sqrt(G*hl_c));
 
         //save center state variables
-        sl_center->u = u1;
-        sl_center->rho = rho1;
-        sl_center->p = p1;
-        sl_center->a = a1;
+        sl_center->u = ul_c;
+        sl_center->h = hl_c;
         
-        return u1;
+        return ul_c;
     }
 }
 
@@ -218,24 +202,17 @@ double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr)
     if (Hctr <= sr->h)
     {
         //RCW is a GAMMA MINUS Simple Wave (S-)
-        double u0 = sr->u;
-        double rho0 = sr->rho;
-        double p0 = sr->p;
-        double a0 = sr->a;
+        double ur = sr->u;
+        double hr = sr->h;
 
-        //near slip line state variables
-        double p1 = Pslip;
-        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
-        double a1 = constant_state_soundspeed(rho1,p1);
-        double u1 = u0 - 2.0*(a0 - a1)/(GAMMA-1.0);
-        
+        double hr_c = Hctr;
+        double ur_c = ur + 2.0*(sqrt(G*hr_c) - sqrt(G*hr));
+
         //save center state variables
-        sr_center->u = u1;
-        sr_center->rho = rho1;
-        sr_center->p = p1;
-        sr_center->a = a1;
+        sr_center->u = ur_c;
+        sr_center->h = hr_c;
         
-        return u1;
+        return ur_c;
     }
     else
     {
