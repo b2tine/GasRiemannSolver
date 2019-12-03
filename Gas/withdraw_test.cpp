@@ -27,11 +27,9 @@ int main(int argc, char** argv)
         }
     }
 
-    //double GAMMA = 1.4;
-    
     //GIVEN:
-    double Uleft = -1.0;    // m/s
-    double u1 = sign*Uleft;
+    double U= -1.0;    // m/s
+    double u1 = sign*U;
 
     printf("%s piston withdrawal speed U = %g m/s\n\n",
             (dir == DIRECTION::LEFT) ? "LEFT" : "RIGHT", u1);
