@@ -45,57 +45,48 @@ std::string STATE::printinfo() const
 STATE RiemannProblem::operator()(double ksi)
 {
     //Locate solution region of ksi = x/t and compute the solution
-    if (ksi < slip_slope)
+    if (LCW == WAVETYPE::SHOCK)
     {
-        if (LCW == WAVETYPE::SHOCK)
-        {
-            if (ksi < left_shockspeed)
-                return *sl;
-            else
-                return *sl_c;
-        }
+        if (ksi < left_shockspeed)
+            return *sl;
         else
-        {
-            if (ksi < left_trailing_fan_slope)
-                return *sl;
-            else if (ksi < left_leading_fan_slope)
-            {
-                DIRECTION dir = DIRECTION::RIGHT;
-                double u_fan = rarefaction_velocity(ksi,dir,sl->u,sl->a);
-                double a_fan = rarefaction_soundspeed(ksi,dir,sl->u,sl->a);
-                double rho_fan = isentropic_relation_density(a_fan,sl->rho,sl->p);
-                double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(rho_fan,u_fan,p_fan,a_fan);
-            }
-            else
-                return *sl_c;
-        }
+            return *sl_c;
     }
     else
     {
-        if (RCW == WAVETYPE::SHOCK)
+        if (ksi < left_trailing_fan_slope)
+            return *sl;
+        else if (ksi < left_leading_fan_slope)
         {
-            if (ksi < right_shockspeed)
-                return *sr_c;
-            else
-                return *sr;
+            double u_fan = (sl->u + 2.0*sqrt(G*sl->h) + 2.0*ksi)/3.0;
+            double h_fan = (2.0*sqrt(G*sl->h) + sl->u - ksi)/3.0;
+            h_fan *= h_fan/G;
+            return STATE(u_fan,h_fan);
         }
         else
+            return *sl_c;
+    }
+    
+    if (RCW == WAVETYPE::SHOCK)
+    {
+        if (ksi < right_shockspeed)
+            return *sr_c;
+        else
+            return *sr;
+    }
+    else
+    {
+        if (ksi < right_leading_fan_slope)
+            return *sr_c;
+        else if (ksi < right_trailing_fan_slope)
         {
-            if (ksi < right_leading_fan_slope)
-                return *sr_c;
-            else if (ksi < right_trailing_fan_slope)
-            {
-                DIRECTION dir = DIRECTION::LEFT;
-                double u_fan = rarefaction_velocity(ksi,dir,sr->u,sr->a);
-                double a_fan = rarefaction_soundspeed(ksi,dir,sr->u,sr->a);
-                double rho_fan = isentropic_relation_density(a_fan,sr->rho,sr->p);
-                double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-                return STATE(rho_fan,u_fan,p_fan,a_fan);
-            }
-            else
-                return *sr;
+            double u_fan = (sr->u - 2.0*sqrt(G*sr->h) + 2.0*ksi)/3.0;
+            double h_fan = (2.0*sqrt(G*sr->h) - sr->u + ksi)/3.0;
+            h_fan *= h_fan/G;
+            return STATE(u_fan,h_fan);
         }
+        else
+            return *sr;
     }
 }
 
@@ -231,6 +222,7 @@ double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr)
     }
 }
 
+/*
 
 //SHOCK WAVE FUNCTIONS
 
@@ -291,8 +283,8 @@ double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0)
     double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     return (u0*(GAMMA-1.0) + 2.0*(ksi - sign*a0))/(GAMMA+1.0);
     //Variable Gamma:
-    /*return (u0*(gamma1-1.0)
-            + 2.0*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0)))/(gamma1+1.0);*/
+    //return (u0*(gamma1-1.0)
+      //      + 2.0*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0)))/(gamma1+1.0);
 }
 
 double rarefaction_velocity_xt(double x, double t,
@@ -307,8 +299,8 @@ double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0)
     double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
     double a_fan = a0 + sign*(ksi - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
     //Variable Gamma:
-    /*double a_fan = a0*(gamma1-1.0)/(gamma0-1.0) 
-        + sign*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0) - u0)*(gamma1-1.0)/(gamma1+1.0);*/
+    //double a_fan = a0*(gamma1-1.0)/(gamma0-1.0) 
+     //   + sign*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0) - u0)*(gamma1-1.0)/(gamma1+1.0);
     if (a_fan <= 0.0)
         throw VacuumStateException("in fan region");
     return a_fan;
@@ -320,5 +312,5 @@ double rarefaction_soundspeed_xt(double x, double t,
     assert(t > 0.0);
     return rarefaction_soundspeed(x/t,dir,u0,a0);
 }
-
+*/
 

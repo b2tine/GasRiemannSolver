@@ -172,6 +172,7 @@ class VacuumStateException : public std::runtime_error
 };
 */
 
+/*
 //SHOCK WAVE FUNCTIONS
 
 double behind_state_specific_volume(double rhoa, double pa, double pb);
@@ -200,5 +201,6 @@ double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0);
 double rarefaction_soundspeed_xt(double x, double t,
                               DIRECTION dir, double u0, double a0);
 
+*/
 
 #endif
