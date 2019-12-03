@@ -142,9 +142,9 @@ int main()
             QFlux[2] = VP.u*(0.5*VP.rho*VP.u*VP.u + VP.p/(GAMMA - 1.0) + VP.p)
                         - VM.u*(0.5*VM.rho*VM.u*VM.u + VM.p/(GAMMA - 1.0) + VM.p);
 
-            double dens = Q[i][0] + QFlux[0]*dt/dx;
-            double momn = Q[i][1] + QFlux[1]*dt/dx;
-            double energy = Q[i][2] + QFlux[2]*dt/dx;
+            double dens = Q[i][0] - QFlux[0]*dt/dx;
+            double momn = Q[i][1] - QFlux[1]*dt/dx;
+            double energy = Q[i][2] - QFlux[2]*dt/dx;
 
             Qnew[i][0] = dens;
             Qnew[i][1] = momn;
