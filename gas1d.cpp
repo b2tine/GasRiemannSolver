@@ -177,31 +177,6 @@ int main()
         Qnew[N-1][2] = QRightDirichlet[2];
         Unew[N-1] = URightDirichlet;
 
-        /*
-        //periodic boundary:
-        //   un[0] = un[N-2];
-        //   un[N-1] = un[1];
-        
-        Qnew[0][0] = Qnew[N-2][0];
-        Qnew[0][1] = Qnew[N-2][1];
-        Qnew[0][2] = Qnew[N-2][2];
-
-        Unew[0].rho = Qnew[0][0];
-        Unew[0].u = Qnew[0][1]/Qnew[0][0];
-        Unew[0].p = (Qnew[0][2] - 0.5*Qnew[0][1]*Qnew[0][1]/Qnew[0][0])*(GAMMA - 1.0);
-        Unew[0].computeSoundSpeed();
-        //Unew[0].a = constant_state_soundspeed(Unew[0].rho,Unew[i].p);
-
-        Qnew[N-1][0] = Qnew[1][0];
-        Qnew[N-1][1] = Qnew[1][1];
-        Qnew[N-1][2] = Qnew[1][2];
-
-        Unew[N-1].rho = Qnew[N-1][0];
-        Unew[N-1].u = Qnew[N-1][1]/Qnew[N-1][0];
-        Unew[N-1].p = (Qnew[N-1][2] - 0.5*Qnew[N-1][1]*Qnew[N-1][1]/Qnew[N-1][0])*(GAMMA - 1.0);
-        Unew[N-1].computeSoundSpeed();
-        */
-
         //copy new into old
         for (int i = 0; i < N; ++i)
         {
