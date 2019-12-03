@@ -44,18 +44,12 @@ int main(int argc, char* argv[])
 
 
     STATE sl(rhol,ul,pl,"L");   
-    STATE sl_c(0,0,0,"LC");   
-    STATE sr_c(0,0,0,"RC");   
     STATE sr(rhor,ur,pr,"R");   
 
-    RiemannProblem RP(&sl,&sl_c,&sr_c,&sr);
+    RiemannProblem RP(&sl,&sr);
     RP.solve();
     
-    std::cout << sl << "\n";
-    std::cout << sl_c << "\n";
-    std::cout << sr_c << "\n";
-    std::cout << sr << "\n";
-
+    RP.printStates();
     
     //OUTPUT
     std::string outdir("out-RP/");

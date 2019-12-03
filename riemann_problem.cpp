@@ -128,6 +128,14 @@ void RiemannProblem::solve()
     }
 }
 
+void RiemannProblem::printStates()
+{
+    std::cout << *sl << "\n";
+    std::cout << *sl_c << "\n";
+    std::cout << *sr_c << "\n";
+    std::cout << *sr << "\n";
+}
+
 void RiemannProblem::detectVacuumState()
 {
     std::vector<STATE*> vacstates;

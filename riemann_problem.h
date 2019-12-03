@@ -71,6 +71,8 @@ struct RP_Function
 {
     STATE *sleft, *sleft_center, *sright_center, *sright;
 
+    RP_Function() = default;
+
     RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
         : sleft{sL}, sleft_center{sLC}, sright_center{sRC}, sright{sR}
     {}
@@ -91,9 +93,21 @@ class RiemannProblem
 {
     public:
     
-        RiemannProblem(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
-            : sl{sL}, sl_c{sLC}, sr_c{sRC}, sr{sR}, rpfunc{sL,sLC,sRC,sR}
-        {}
+        RiemannProblem(STATE* sL, STATE* sR)
+            : sl{sL}, sl_c{new STATE(0,0,0,"LC")},
+            sr_c{new STATE(0,0,0,"RC")}, sr{sR}
+        {
+            rpfunc.sleft = sL;
+            rpfunc.sleft_center = sl_c;
+            rpfunc.sright_center = sr_c;
+            rpfunc.sright = sR;
+        }
+
+        ~RiemannProblem()
+        {
+            delete sl_c;
+            delete sr_c;
+        }
 
         void solve();
 
@@ -105,6 +119,9 @@ class RiemannProblem
         }
 
         //TODO: printing functions
+
+        void printStates();
+
 
     private:
 
