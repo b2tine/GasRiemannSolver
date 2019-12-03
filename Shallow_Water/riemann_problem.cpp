@@ -218,23 +218,14 @@ double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr)
     {
         //RCW is a Right Facing Shock Wave (RFS)
         double ua = sr->u;
-        double rhoa = sr->rho;
-        double pa = sr->p;
-        double pb = Pslip;
+        double ha = sr->h;
 
-        double taua = 1.0/rhoa;
-        double taub = behind_state_specific_volume(rhoa,pa,pb);
-        double rhob = 1.0/taub;
-        
-        //M < 0 this case
-        double M = -std::sqrt((pb - pa)/(taua - taub));
-        double ub = ua - (pb - pa)/M;
+        double hb = Hctr;
+        double ub = ua + (ha - hb)*sqrt(0.5*G*(ha + hb)/(ha*hb));
         
         //save center state variables
         sr_center->u = ub;
-        sr_center->rho = rhob;
-        sr_center->p = pb;
-        sr_center->a = constant_state_soundspeed(rhob,pb);
+        sr_center->h = hb;
         
         return ub;
     }
