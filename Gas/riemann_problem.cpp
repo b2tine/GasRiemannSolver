@@ -107,12 +107,14 @@ void RiemannProblem::solve()
     //Compute defining characteristics of Riemann Solution
     if (Pslip > sl->p)
     {
+        //LEFT_FACING_SHOCK
         LCW = WAVETYPE::SHOCK;
         left_shockspeed =
             (sl->rho*sl->u - sl_c->rho*sl_c->u)/(sl->rho - sl_c->rho);
     }
     else
     {
+        //GAMMA_PLUS_WAVE
         LCW = WAVETYPE::SIMPLE;
         left_trailing_fan_slope = sl->u - sl->a;
         left_leading_fan_slope = sl_c->u - sl_c->a;
@@ -122,12 +124,14 @@ void RiemannProblem::solve()
 
     if (Pslip < sr->p)
     {
+        //GAMMA_MINUS_WAVE
         RCW = WAVETYPE::SIMPLE;
         right_leading_fan_slope = sr_c->u + sr_c->a;
         right_trailing_fan_slope = sr->u + sr->a;
     }
     else
     {
+        //RIGHT_FACING_SHOCK
         RCW = WAVETYPE::SHOCK;
         right_shockspeed =
             (sr->rho*sr->u - sr_c->rho*sr_c->u)/(sr->rho - sr_c->rho);
