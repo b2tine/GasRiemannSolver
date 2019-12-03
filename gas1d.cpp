@@ -100,7 +100,6 @@ int main()
     pfile.close();
 
     //Start Up Step
-    //TODO: are we doing this correctly, and is it neccesary?
     RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
     RP_StartUp.solve();
     STATE V_StartUp = RP_StartUp(0.0);
@@ -112,10 +111,10 @@ int main()
         std::max((std::max(u_start,fabs(u_start-a_start))),(fabs(u_start+a_start)));
     double max_dt = CFL*dx/max_speed;
 
+    //Time Marching
     double time = 0.0;
     std::ofstream logfile(outdir + "log.txt");
 
-    //Time Marching
     for (int ts = 1; ts <= max_tstep; ++ts)
     {
         max_speed = 0.0;
