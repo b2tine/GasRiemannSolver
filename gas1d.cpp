@@ -4,8 +4,6 @@
 
 int main()
 {
-    //INPUT: Left and Right states, sl and sr
-
     std::ifstream infile("in-gas");
 
     std::vector<double> init;
@@ -17,10 +15,10 @@ int main()
     }
 
     double tfinal = 0.1;
-    int max_tstep = 1000;
+    int max_tstep = 2000;
+    double default_dt = 0.0005;
     double CFL = 0.75;
 
-    //generate grid and set initial condition
     int N = 1000;
     double xmin = 0.0;
     double xmid = 0.5;
@@ -35,6 +33,7 @@ int main()
     STATE U[N];
     STATE Unew[N];
 
+    //generate grid and set initial condition
     for (int i = 0; i < N; ++i)
     {
         double dens, velo, pres;
@@ -101,31 +100,25 @@ int main()
     pfile.close();
 
     //Start Up Step
-    //TODO: are we doing this correctly?
+    //TODO: are we doing this correctly, and is it neccesary?
     RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
     RP_StartUp.solve();
-        //RP_StartUp.printStates();
     STATE V_StartUp = RP_StartUp(0.0);
-        //std::cout << "V_StartUp.u = " << V_StartUp.u << "\n";
-        //std::cout << "V_StartUp.a = " << V_StartUp.a << "\n";
 
     double u_start = fabs(V_StartUp.u);
     double a_start = V_StartUp.a;
-    double start_max_speed =
+
+    double max_speed =
         std::max((std::max(u_start,fabs(u_start-a_start))),(fabs(u_start+a_start)));
-    
-    double default_dt = 0.0001;
-    double max_dt = CFL*dx/start_max_speed;
-        //std::cout << "start_max_speed = " << start_max_speed << "\n";
-        //std::cout << "dt = " << dt << "\n";
-        //exit(0);
+    double max_dt = CFL*dx/max_speed;
 
     double time = 0.0;
+    std::ofstream logfile(outdir + "log.txt");
 
     //Time Marching
     for (int ts = 1; ts <= max_tstep; ++ts)
     {
-        double max_speed = 0.0;
+        max_speed = 0.0;
 
         double dt = std::min(default_dt,max_dt);
         time += dt;
@@ -208,9 +201,15 @@ int main()
         ufile.close();
         pfile.close();
 
+        logfile << "step = " << ts << " ";
+        logfile << "dt = " << dt << " ";
+        logfile << "time = " << time << "\n\n";
+
         if (time >= tfinal)
             break;
     }
+
+    logfile.close();
 
     return 0;
 }
