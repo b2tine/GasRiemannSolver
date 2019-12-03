@@ -5,6 +5,7 @@ withdraw_test
 compress_test
 secant_method_test
 riemann_solver_test
+gas1d
 
 tags
 
