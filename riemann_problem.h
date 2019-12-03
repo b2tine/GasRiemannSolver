@@ -75,10 +75,6 @@ struct RP_Function
 
     RP_Function() = default;
 
-    RP_Function(STATE* sL, STATE* sLC, STATE* sRC, STATE* sR)
-        : sleft{sL}, sleft_center{sLC}, sright_center{sRC}, sright{sR}
-    {}
-
     //Note: This is not exactly a const method; the STATEs
     //      themselves are being modified in LeftCeteredWave() and
     //      RightCenteredWave() through their pointers.
