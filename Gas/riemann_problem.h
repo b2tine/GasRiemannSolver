@@ -1,7 +1,7 @@
 #ifndef RIEMANN_PROBLEM_H
 #define RIEMANN_PROBLEM_H
 
-#include "secant_method.h"
+#include <secant_method.h>
 
 #include <iostream>
 #include <exception>

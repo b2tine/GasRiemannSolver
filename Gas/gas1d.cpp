@@ -1,5 +1,5 @@
 #include "riemann_problem.h"
-#include "util.h"
+#include <util.h>
 
 
 int main()
