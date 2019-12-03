@@ -2,7 +2,7 @@ CXXFLAGS=-std=c++11 -g
 INCLUDE = -I../Common
 
 
-all: riemann_solver_test shallow1d
+all: riemann_solver_test
 
 
 #dambreak_test: dambreak_test.cpp riemann_problem.o

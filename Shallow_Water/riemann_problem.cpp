@@ -35,9 +35,11 @@ void STATE::computeSoundSpeed()
 std::string STATE::printinfo() const
 {
     char ostring[250];
-    sprintf(ostring,"%5s (%g, %g, %g, %g)",
+    //sprintf(ostring,"%5s (%g, %g, %g, %g)",
+      //      ((id.empty()) ? "" : id + " :").c_str(),u,h,p,a);
+
+    sprintf(ostring,"%5s (%g, %g)",
             ((id.empty()) ? "" : id + " :").c_str(),u,h);
-            //((id.empty()) ? "" : id + " :").c_str(),u,h,p,a);
     return std::string(ostring);
 }
 

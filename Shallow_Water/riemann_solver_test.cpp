@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
     
     //INPUT: Left and Right states, sl and sr
-    std::ifstream infile("in-RP");
+    std::ifstream infile("in-dambreak");
 
     std::vector<double> init;
     while (!infile.eof())
@@ -33,50 +33,45 @@ int main(int argc, char* argv[])
         init.push_back(val);
     }
 
-    double rhol = init[0];
-    double ul = init[1];
-    double pl = init[2];
+    double ul = init[0];
+    double hl = init[1];
 
-    double rhor = init[3];
-    double ur = init[4];
-    double pr = init[5];
+    double ur = init[2];
+    double hr = init[3];
     //END INPUT
 
 
-    STATE sl(rhol,ul,pl,"L");   
-    STATE sr(rhor,ur,pr,"R");   
+    STATE sl(ul,hl,"L");   
+    STATE sr(ur,hr,"R");   
 
     RiemannProblem RP(&sl,&sr);
     RP.solve();
     
-    RP.printStates();
-    
     //OUTPUT
-    std::string outdir("out-RP/");
+    RP.printStates();
+
+    std::string outdir("out-dambreak/");
     create_directory(outdir);
 
-    std::ofstream rhofile(outdir+"density.txt");
     std::ofstream ufile(outdir+"velocity.txt");
-    std::ofstream pfile(outdir+"pressure.txt");
-    std::ofstream afile(outdir+"soundspeed.txt");
+    std::ofstream hfile(outdir+"height.txt");
+    //std::ofstream afile(outdir+"soundspeed.txt");
 
     for (int i = 0; i < M; ++i)
     {
         double ksi = xl + i*h;
         if (t > 0.0) ksi /= t;
 
-        STATE uR = RP(ksi);
+        STATE U = RP(ksi);
         
-        rhofile << ksi << " " << uR.rho << "\n";
-        ufile << ksi << " " << uR.u << "\n";
-        pfile << ksi << " " << uR.p << "\n";
-        afile << ksi << " " << uR.a << "\n";
+        ufile << ksi << " " << U.u << "\n";
+        hfile << ksi << " " << U.h << "\n";
+        //afile << ksi << " " << U.a << "\n";
     }
 
-    rhofile.close();
     ufile.close();
-    pfile.close();
-    afile.close();
+    hfile.close();
+        //afile.close();
     //END OUTPUT
 
     return 0;

@@ -91,8 +91,8 @@ class RiemannProblem
     public:
     
         RiemannProblem(STATE* sL, STATE* sR)
-            : sl{sL}, sl_c{new STATE(0,0,0,"LC")},
-            sr_c{new STATE(0,0,0,"RC")}, sr{sR}
+            : sl{sL}, sl_c{new STATE(0,0,"LC")},
+            sr_c{new STATE(0,0,"RC")}, sr{sR}
         {
             rpfunc.sleft = sl;
             rpfunc.sleft_center = sl_c;
