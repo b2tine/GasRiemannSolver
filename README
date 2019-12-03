@@ -1,0 +1,13 @@
+Run 'make'
+
+The file in-RP contains the left and right initial states
+that are read by the solver.
+
+
+./riemann_solver_test ksi1 ksi2 ksi_interval
+
+ex.
+
+./riemann_solver_test -1000 1000 1000
+
+output will be in out-RP and can be viewed with xgraph.
