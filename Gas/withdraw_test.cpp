@@ -60,19 +60,6 @@ int main(int argc, char** argv)
     
     piston_withdraw_point_locate(x,t,dir,u1,u0,rho0,p0,a0);
     
-    
-    /*
-    double u_fan = rarefaction_velocity_xt(x,t,dir,u0,a0);
-    double a_fan = rarefaction_soundspeed_xt(x,t,dir,u0,a0);
-    double rho_fan = isentropic_relation_density(a_fan,rho0,p0);
-    double p_fan = isentropic_relation_pressure(a_fan,rho_fan);
-    
-    printf("u_fan = %g\n",u_fan);
-    printf("rho_fan = %g\n",rho_fan);
-    printf("p_fan = %g\n",p_fan);
-    printf("a_fan = %g\n",a_fan);
-    */
-
     return 0;
 }
 
