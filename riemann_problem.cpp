@@ -5,10 +5,7 @@
 
 STATE::STATE(double RHO, double U, double P)
     : rho{RHO}, u{U}, p{P}
-{
-    if (rho > 0.0)
-        a = constant_state_soundspeed(rho,p);
-}
+{}
 
 STATE::STATE(double RHO, double U, double P, const std::string& ID)
     : STATE{RHO,U,P}
@@ -24,6 +21,12 @@ STATE::STATE(double RHO, double U, double P, double A, const std::string& ID)
     : STATE{RHO,U,P,A}
 {
     id = ID;
+}
+
+void STATE::computeSoundSpeed()
+{
+    assert(rho > 0.0 && p >= 0.0);
+    a = constant_state_soundspeed(rho,p);
 }
 
 std::string STATE::printinfo() const
@@ -94,6 +97,9 @@ STATE RiemannProblem::operator()(double ksi)
 
 void RiemannProblem::solve()
 {
+    sl->computeSoundSpeed();
+    sr->computeSoundSpeed();
+
     //Solve F(Pslip) = ul_star(P_slip) - ur-star(P_slip) = 0
     Pslip = secantMethod(rpfunc,sl->p,sr->p);
     detectVacuumState();

@@ -47,6 +47,8 @@ struct STATE
     STATE(double RHO, double U, double P, double A);
     STATE(double RHO, double U, double P, double A, const std::string& ID);
 
+    void computeSoundSpeed();
+
     std::string printinfo() const;
 
     void print() const
