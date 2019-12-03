@@ -18,19 +18,18 @@
 
 const double HUGE = std::numeric_limits<double>::max();
 
-
-const double GAMMA = 1.4;
-
 enum class WAVETYPE {SHOCK,SIMPLE};
 enum class DIRECTION {LEFT,RIGHT};
 
+
+const double G = 9.8;
+
 struct STATE
 {
-    double rho {-1.0};    //density
     double u {0.0};       //velocity
-    double p {-1.0};      //pressure
-    double a {-1.0};      //soundspeed
-    //double gamma;       //specific heat ratio
+    double h {0.0};       //height
+    //double p {0.0};       //pressure
+    //double a {-1.0};      //"soundspeed"
     
     std::string id;
 
@@ -42,12 +41,12 @@ struct STATE
     STATE(STATE&&) = default;
     STATE& operator=(STATE&&) = default;
 
-    STATE(double RHO, double U, double P);
-    STATE(double RHO, double U, double P, const std::string& ID);
-    STATE(double RHO, double U, double P, double A);
-    STATE(double RHO, double U, double P, double A, const std::string& ID);
+    STATE(double U, double H);
+    STATE(double U, double H, const std::string& ID);
+    //STATE(double U, double H, double P, double A);
+    //STATE(double U, double H, double P, double A, const std::string& ID);
 
-    void computeSoundSpeed();
+    //void computeSoundSpeed();
 
     std::string printinfo() const;
 
@@ -64,9 +63,9 @@ struct STATE
 };
 
 
-double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
+double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center);
 
-double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
+double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr);
 
 
 struct RP_Function
@@ -80,10 +79,10 @@ struct RP_Function
     //      RightCenteredWave() through their pointers.
     //      We need the const modifier in order for RP_Function
     //      to work with the secantMethod() template function.
-    double operator()(double P) const
+    double operator()(double H) const
     {
-        return LeftCenteredWave(P,sleft,sleft_center)
-            - RightCenteredWave(P,sright_center,sright);
+        return LeftCenteredWave(H,sleft,sleft_center)
+            - RightCenteredWave(H,sright_center,sright);
     }
 };
 
@@ -126,21 +125,20 @@ class RiemannProblem
         STATE *sl, *sl_c, *sr_c, *sr;
         RP_Function rpfunc;
 
-        double Pslip;
+        double H_ctr;
         WAVETYPE LCW, RCW;
 
         double left_shockspeed {HUGE};
         double left_trailing_fan_slope {HUGE};
         double left_leading_fan_slope {HUGE};
-        double slip_slope {0.0};
-        double right_trailing_fan_slope {-HUGE};
         double right_leading_fan_slope {-HUGE};
+        double right_trailing_fan_slope {-HUGE};
         double right_shockspeed {-HUGE};
 
-        void detectVacuumState();
+        //void detectVacuumState();
 };
 
-
+/*
 class VacuumStateException : public std::runtime_error
 {
     public:
@@ -172,7 +170,7 @@ class VacuumStateException : public std::runtime_error
 
         std::string message;
 };
-
+*/
 
 //SHOCK WAVE FUNCTIONS
 

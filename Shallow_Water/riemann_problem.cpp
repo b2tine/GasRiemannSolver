@@ -3,37 +3,41 @@
 //TODO: get GAMMA from STATE or as function parameter
 
 
-STATE::STATE(double RHO, double U, double P)
-    : rho{RHO}, u{U}, p{P}
+STATE::STATE(double U, double H)
+    : u{U}, h{H}
 {}
 
-STATE::STATE(double RHO, double U, double P, const std::string& ID)
-    : STATE{RHO,U,P}
+STATE::STATE(double U, double H, const std::string& ID)
+    : STATE{U,H}
 {
     id = ID;
 }
 
-STATE::STATE(double RHO, double U, double P, double A)
-    : rho{RHO}, u{U}, p{P}, a{A}
+/*
+STATE::STATE(double U, double H, double P, double A)
+    : u{U}, h{H}, p{P}, a{A}
 {}
 
-STATE::STATE(double RHO, double U, double P, double A, const std::string& ID)
-    : STATE{RHO,U,P,A}
+STATE::STATE(double U, double H, double P, double A, const std::string& ID)
+    : STATE{U,H,P,A}
 {
     id = ID;
 }
+*/
 
+/*
 void STATE::computeSoundSpeed()
 {
-    assert(rho > 0.0 && p >= 0.0);
     a = constant_state_soundspeed(rho,p);
 }
+*/
 
 std::string STATE::printinfo() const
 {
     char ostring[250];
     sprintf(ostring,"%5s (%g, %g, %g, %g)",
-            ((id.empty()) ? "" : id + " :").c_str(),rho,u,p,a);
+            ((id.empty()) ? "" : id + " :").c_str(),u,h);
+            //((id.empty()) ? "" : id + " :").c_str(),u,h,p,a);
     return std::string(ostring);
 }
 
@@ -97,40 +101,42 @@ STATE RiemannProblem::operator()(double ksi)
 
 void RiemannProblem::solve()
 {
-    sl->computeSoundSpeed();
-    sr->computeSoundSpeed();
+    //sl->computeSoundSpeed();
+    //sr->computeSoundSpeed();
 
-    //Solve F(Pslip) = ul_star(P_slip) - ur-star(P_slip) = 0
-    Pslip = secantMethod(rpfunc,sl->p,sr->p);
-    detectVacuumState();
+    //Solve F(H_ctr) = ul_center(H_ctr) - ur_center(H_ctr) = 0
+    H_ctr= secantMethod(rpfunc,sl->h,sr->h);
+    //detectVacuumState();
 
     //Compute defining characteristics of Riemann Solution
-    if (Pslip > sl->p)
+    if (H_ctr > sl->h)
     {
+        //LEFT_FACING_SHOCK
         LCW = WAVETYPE::SHOCK;
         left_shockspeed =
-            (sl->rho*sl->u - sl_c->rho*sl_c->u)/(sl->rho - sl_c->rho);
+            sl->u - sqrt(0.5*G*H_ctr*(sl->h + H_ctr)/sl->h);
     }
     else
     {
+        //GAMMA_PLUS_WAVE
         LCW = WAVETYPE::SIMPLE;
-        left_trailing_fan_slope = sl->u - sl->a;
-        left_leading_fan_slope = sl_c->u - sl_c->a;
+        left_trailing_fan_slope = sl->u - sqrt(G*sl->h);
+        left_leading_fan_slope = sl_c->u - sqrt(G*H_ctr);
     }
 
-    slip_slope = sl_c->u;
-
-    if (Pslip < sr->p)
+    if (H_ctr < sr->h)
     {
+        //GAMMA_MINUS_WAVE
         RCW = WAVETYPE::SIMPLE;
-        right_leading_fan_slope = sr_c->u - sr_c->a;
-        right_trailing_fan_slope = sr->u - sr->a;
+        right_leading_fan_slope = sr_c->u + sqrt(G*H_ctr);
+        right_trailing_fan_slope = sr->u + sqrt(G*sr->h);
     }
     else
     {
+        //RIGHT_FACING_SHOCK
         RCW = WAVETYPE::SHOCK;
         right_shockspeed =
-            (sr->rho*sr->u - sr_c->rho*sr_c->u)/(sr->rho - sr_c->rho);
+            sr->u + sqrt(0.5*G*H_ctr*(H_ctr + sr->h)/sr->h);
     }
 }
 
@@ -142,6 +148,7 @@ void RiemannProblem::printStates()
     std::cout << *sr << "\n";
 }
 
+/*
 void RiemannProblem::detectVacuumState()
 {
     std::vector<STATE*> vacstates;
@@ -154,10 +161,11 @@ void RiemannProblem::detectVacuumState()
     if (!vacstates.empty())
         throw VacuumStateException("",vacstates);
 }
+*/
         
-double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
+double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center)
 {
-    if (Pslip > sl->p)
+    if (Hctr > sl->h)
     {
         //LCW is Left Facing Shock Wave (LFS)
         double ua = sl->u;
@@ -205,9 +213,9 @@ double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
     }
 }
 
-double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
+double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr)
 {
-    if (Pslip <= sr->p)
+    if (Hctr <= sr->h)
     {
         //RCW is a GAMMA MINUS Simple Wave (S-)
         double u0 = sr->u;
@@ -255,7 +263,6 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
     }
 }
 
-//TODO: implement variable gamma
 
 //SHOCK WAVE FUNCTIONS
 
