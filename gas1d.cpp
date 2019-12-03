@@ -16,7 +16,8 @@ int main()
         init.push_back(val);
     }
 
-    int max_tstep = 100;
+    double tfinal = 0.1;
+    int max_tstep = 1000;
     double CFL = 0.75;
 
     //generate grid and set initial condition
@@ -113,17 +114,21 @@ int main()
     double start_max_speed =
         std::max((std::max(u_start,fabs(u_start-a_start))),(fabs(u_start+a_start)));
     
-    double default_dt = 0.000001;
+    double default_dt = 0.0001;
     double max_dt = CFL*dx/start_max_speed;
         //std::cout << "start_max_speed = " << start_max_speed << "\n";
         //std::cout << "dt = " << dt << "\n";
         //exit(0);
 
+    double time = 0.0;
+
     //Time Marching
     for (int ts = 1; ts <= max_tstep; ++ts)
     {
-        double dt = std::min(default_dt,max_dt);
         double max_speed = 0.0;
+
+        double dt = std::min(default_dt,max_dt);
+        time += dt;
 
         //Domain Interior
         for (int i = 1; i < N-1; ++i)
@@ -202,8 +207,11 @@ int main()
         rhofile.close();
         ufile.close();
         pfile.close();
+
+        if (time >= tfinal)
+            break;
     }
-    
+
     return 0;
 }
 
