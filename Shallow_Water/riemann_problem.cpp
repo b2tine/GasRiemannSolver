@@ -99,11 +99,7 @@ void RiemannProblem::solve()
 
     //Solve F(H_ctr) = ul_center(H_ctr) - ur_center(H_ctr) = 0
     H_ctr = secantMethod(rpfunc,sl->h,sr->h);
-
-    printStates();
-    std::cout << "H_ctr = " << H_ctr << "\n";
     
-    exit(0);
     //detectVacuumState();
 
     //Compute defining characteristics of Riemann Solution
@@ -112,7 +108,7 @@ void RiemannProblem::solve()
         //LEFT_FACING_SHOCK
         LCW = WAVETYPE::SHOCK;
         left_shockspeed =
-            sl->u + sqrt(0.5*G*sl_c->h*(sl->h + sl_c->h)/sl->h);
+            sl->u - sqrt(0.5*G*sl_c->h*(sl->h + sl_c->h)/sl->h);
     }
     else
     {
@@ -127,7 +123,7 @@ void RiemannProblem::solve()
         //RIGHT_FACING_SHOCK
         RCW = WAVETYPE::SHOCK;
         right_shockspeed =
-            sr_c->u + sqrt(0.5*G*sr->h*(sr_c->h + sr->h)/sr_c->h);
+            sr->u + sqrt(0.5*G*sr_c->h*(sr->h + sr_c->h)/sr->h);
     }
     else
     {
@@ -176,8 +172,6 @@ double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
         sl_center->u = ul_c;
         sl_center->h = hl_c;
         
-        //std::cout << "ul_c = " << ul_c << " (LFS)\n";
-
         return ul_c;
     }
     else
@@ -187,13 +181,12 @@ double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
         double hl = sl->h;
 
         double hl_c = H;
-        double ul_c = ul + 2.0*(sqrt(G*hl) - sqrt(G*hl_c));
+        double ul_c = ul - 2.0*(sqrt(G*hl_c) - sqrt(G*hl));
 
         //save center state variables
         sl_center->u = ul_c;
         sl_center->h = hl_c;
         
-        //std::cout << "ul_c = " << ul_c << " (GAMMA_PLUS)\n";
         return ul_c;
     }
 }
@@ -207,13 +200,12 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         double hr = sr->h;
 
         double hr_c = H;
-        double ur_c = ur + (hr - hr_c)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
+        double ur_c = ur + (hr_c - hr)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
         
         //save center state variables
         sr_center->u = ur_c;
         sr_center->h = hr_c;
         
-        //std::cout << "ur_c = " << ur_c << " (RFS)\n";
         return ur_c;
     }
     else
@@ -229,7 +221,6 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         sr_center->u = ur_c;
         sr_center->h = hr_c;
         
-        //std::cout << "ur_c = " << ur_c << " (GAMMA_MINUS)\n";
         return ur_c;
     }
 }
