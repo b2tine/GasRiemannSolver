@@ -63,9 +63,9 @@ struct STATE
 };
 
 
-double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center);
+double LeftCenteredWave(double H, STATE* sl, STATE* sl_center);
 
-double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr);
+double RightCenteredWave(double H, STATE* sr_center, STATE* sr);
 
 
 struct RP_Function

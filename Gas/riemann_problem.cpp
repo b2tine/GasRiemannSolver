@@ -122,19 +122,19 @@ void RiemannProblem::solve()
 
     slip_slope = sl_c->u;
 
-    if (Pslip < sr->p)
-    {
-        //GAMMA_MINUS_WAVE
-        RCW = WAVETYPE::SIMPLE;
-        right_leading_fan_slope = sr_c->u + sr_c->a;
-        right_trailing_fan_slope = sr->u + sr->a;
-    }
-    else
+    if (Pslip > sr->p)
     {
         //RIGHT_FACING_SHOCK
         RCW = WAVETYPE::SHOCK;
         right_shockspeed =
             (sr->rho*sr->u - sr_c->rho*sr_c->u)/(sr->rho - sr_c->rho);
+    }
+    else
+    {
+        //GAMMA_MINUS_WAVE
+        RCW = WAVETYPE::SIMPLE;
+        right_leading_fan_slope = sr_c->u + sr_c->a;
+        right_trailing_fan_slope = sr->u + sr->a;
     }
 }
 
@@ -211,29 +211,7 @@ double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
 
 double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
 {
-    if (Pslip <= sr->p)
-    {
-        //RCW is a GAMMA MINUS Simple Wave (S-)
-        double u0 = sr->u;
-        double rho0 = sr->rho;
-        double p0 = sr->p;
-        double a0 = sr->a;
-
-        //near slip line state variables
-        double p1 = Pslip;
-        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
-        double a1 = constant_state_soundspeed(rho1,p1);
-        double u1 = u0 - 2.0*(a0 - a1)/(GAMMA-1.0);
-        
-        //save center state variables
-        sr_center->u = u1;
-        sr_center->rho = rho1;
-        sr_center->p = p1;
-        sr_center->a = a1;
-        
-        return u1;
-    }
-    else
+    if (Pslip > sr->p)
     {
         //RCW is a Right Facing Shock Wave (RFS)
         double ua = sr->u;
@@ -256,6 +234,28 @@ double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
         sr_center->a = constant_state_soundspeed(rhob,pb);
         
         return ub;
+    }
+    else
+    {
+        //RCW is a GAMMA MINUS Simple Wave (S-)
+        double u0 = sr->u;
+        double rho0 = sr->rho;
+        double p0 = sr->p;
+        double a0 = sr->a;
+
+        //near slip line state variables
+        double p1 = Pslip;
+        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
+        double a1 = constant_state_soundspeed(rho1,p1);
+        double u1 = u0 - 2.0*(a0 - a1)/(GAMMA-1.0);
+        
+        //save center state variables
+        sr_center->u = u1;
+        sr_center->rho = rho1;
+        sr_center->p = p1;
+        sr_center->a = a1;
+        
+        return u1;
     }
 }
 

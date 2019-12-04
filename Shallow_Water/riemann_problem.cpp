@@ -98,7 +98,12 @@ void RiemannProblem::solve()
     //sr->computeSoundSpeed();
 
     //Solve F(H_ctr) = ul_center(H_ctr) - ur_center(H_ctr) = 0
-    H_ctr= secantMethod(rpfunc,sl->h,sr->h);
+    H_ctr = secantMethod(rpfunc,sl->h,sr->h);
+
+    printStates();
+    std::cout << "H_ctr = " << H_ctr << "\n";
+    
+    exit(0);
     //detectVacuumState();
 
     //Compute defining characteristics of Riemann Solution
@@ -107,29 +112,29 @@ void RiemannProblem::solve()
         //LEFT_FACING_SHOCK
         LCW = WAVETYPE::SHOCK;
         left_shockspeed =
-            sl->u - sqrt(0.5*G*H_ctr*(sl->h + H_ctr)/sl->h);
+            sl->u + sqrt(0.5*G*sl_c->h*(sl->h + sl_c->h)/sl->h);
     }
     else
     {
         //GAMMA_PLUS_WAVE
         LCW = WAVETYPE::SIMPLE;
         left_trailing_fan_slope = sl->u - sqrt(G*sl->h);
-        left_leading_fan_slope = sl_c->u - sqrt(G*H_ctr);
+        left_leading_fan_slope = sl_c->u - sqrt(G*sl_c->h);
     }
 
-    if (H_ctr < sr->h)
-    {
-        //GAMMA_MINUS_WAVE
-        RCW = WAVETYPE::SIMPLE;
-        right_leading_fan_slope = sr_c->u + sqrt(G*H_ctr);
-        right_trailing_fan_slope = sr->u + sqrt(G*sr->h);
-    }
-    else
+    if (H_ctr > sr->h)
     {
         //RIGHT_FACING_SHOCK
         RCW = WAVETYPE::SHOCK;
         right_shockspeed =
-            sr->u + sqrt(0.5*G*H_ctr*(H_ctr + sr->h)/sr->h);
+            sr_c->u + sqrt(0.5*G*sr->h*(sr_c->h + sr->h)/sr_c->h);
+    }
+    else
+    {
+        //GAMMA_MINUS_WAVE
+        RCW = WAVETYPE::SIMPLE;
+        right_leading_fan_slope = sr_c->u + sqrt(G*sr_c->h);
+        right_trailing_fan_slope = sr->u + sqrt(G*sr->h);
     }
 }
 
@@ -156,22 +161,24 @@ void RiemannProblem::detectVacuumState()
 }
 */
         
-double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center)
+double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
 {
-    if (Hctr > sl->h)
+    if (H > sl->h)
     {
         //LCW is Left Facing Shock Wave (LFS)
-        double ua = sl->u;
-        double ha = sl->h;
+        double ul = sl->u;
+        double hl = sl->h;
 
-        double hb = Hctr;
-        double ub = ua + (ha - hb)*sqrt(0.5*G*(ha + hb)/(ha*hb));
+        double hl_c = H;
+        double ul_c = ul - (hl_c - hl)*sqrt(0.5*G*(hl + hl_c)/(hl*hl_c));
         
         //save center state variables
-        sl_center->u = ub;
-        sl_center->h = hb;
+        sl_center->u = ul_c;
+        sl_center->h = hl_c;
         
-        return ub;
+        //std::cout << "ul_c = " << ul_c << " (LFS)\n";
+
+        return ul_c;
     }
     else
     {
@@ -179,48 +186,51 @@ double LeftCenteredWave(double Hctr, STATE* sl, STATE* sl_center)
         double ul = sl->u;
         double hl = sl->h;
 
-        double hl_c = Hctr;
+        double hl_c = H;
         double ul_c = ul + 2.0*(sqrt(G*hl) - sqrt(G*hl_c));
 
         //save center state variables
         sl_center->u = ul_c;
         sl_center->h = hl_c;
         
+        //std::cout << "ul_c = " << ul_c << " (GAMMA_PLUS)\n";
         return ul_c;
     }
 }
 
-double RightCenteredWave(double Hctr, STATE* sr_center, STATE* sr)
+double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
 {
-    if (Hctr <= sr->h)
+    if (H > sr->h)
+    {
+        //RCW is a Right Facing Shock Wave (RFS)
+        double ur = sr->u;
+        double hr = sr->h;
+
+        double hr_c = H;
+        double ur_c = ur + (hr - hr_c)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
+        
+        //save center state variables
+        sr_center->u = ur_c;
+        sr_center->h = hr_c;
+        
+        //std::cout << "ur_c = " << ur_c << " (RFS)\n";
+        return ur_c;
+    }
+    else
     {
         //RCW is a GAMMA MINUS Simple Wave (S-)
         double ur = sr->u;
         double hr = sr->h;
 
-        double hr_c = Hctr;
+        double hr_c = H;
         double ur_c = ur + 2.0*(sqrt(G*hr_c) - sqrt(G*hr));
 
         //save center state variables
         sr_center->u = ur_c;
         sr_center->h = hr_c;
         
+        //std::cout << "ur_c = " << ur_c << " (GAMMA_MINUS)\n";
         return ur_c;
-    }
-    else
-    {
-        //RCW is a Right Facing Shock Wave (RFS)
-        double ua = sr->u;
-        double ha = sr->h;
-
-        double hb = Hctr;
-        double ub = ua + (ha - hb)*sqrt(0.5*G*(ha + hb)/(ha*hb));
-        
-        //save center state variables
-        sr_center->u = ub;
-        sr_center->h = hb;
-        
-        return ub;
     }
 }
 
