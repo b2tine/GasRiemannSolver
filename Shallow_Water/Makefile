@@ -11,7 +11,7 @@ all: sw_riemann_solver_test
 #borewave_test: borewave_test.cpp sw_riemann_problem.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-sw_riemann_solver_test: riemann_solver_test.cpp sw_riemann_problem.o ../Common/util.o
+sw_riemann_solver_test: sw_riemann_solver_test.cpp sw_riemann_problem.o ../Common/util.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
 #shallow_water1d: shallow_water1d.cpp riemann_problem.o ../Common/util.o

@@ -5,7 +5,9 @@ withdraw_test
 compress_test
 secant_method_test
 riemann_solver_test
+sw_riemann_solver_test
 gas1d
+shallow_water1d
 
 tags
 

@@ -1,4 +1,4 @@
-#include "riemann_problem.h"
+#include "sw_riemann_problem.h"
 
 //TODO: get GAMMA from STATE or as function parameter
 
