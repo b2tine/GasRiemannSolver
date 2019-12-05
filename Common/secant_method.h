@@ -47,8 +47,14 @@ class NoConvergenceException : public std::runtime_error
 
 template<typename F>
 double secantMethod(const F& f, double x0, double x1,
-        double TOL = 1.0e-12, int MAXITER = 10000)
+        double TOL = 1.0e-6, int MAXITER = 10000)
 {
+    if (x0 == x1)
+    {
+        x0 -= TOL;
+        x1 += TOL;
+    }
+
     int i = 0;
     double xn = x1; 
     while (std::abs(f(xn)) > TOL && i < MAXITER)

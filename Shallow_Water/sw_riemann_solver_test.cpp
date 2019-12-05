@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[])
 {
-    //INIT OUTPUT:
+    /*
     double xl = atof(argv[1]);
     double xr = atof(argv[2]);
     int M = atoi(argv[3]);
@@ -19,11 +19,21 @@ int main(int argc, char* argv[])
 
     double h = (M == 1) ? xr-xl : (xr-xl)/(M-1);
     if (h == 0.0) M = 1;
-    //END INIT OUTPUT
+    */
 
-    
     //INPUT: Left and Right states, sl and sr
-    std::ifstream infile("in-dambreak");
+    if (argc < 3)
+    {
+        printf("ERROR: Require the input file name \
+                and output directory name.\n");
+        exit(1);
+    }
+
+    std::string in_name = argv[1];
+    std::string out_name = argv[2];
+
+    //Read input file
+    std::ifstream infile(in_name);
 
     std::vector<double> init;
     while (!infile.eof())
@@ -38,24 +48,28 @@ int main(int argc, char* argv[])
 
     double ur = init[2];
     double hr = init[3];
-    //END INPUT
 
-
+    //Initalize states and solve Riemann Problem
     STATE sl(ul,hl,"L");   
     STATE sr(ur,hr,"R");   
 
     RiemannProblem RP(&sl,&sr);
     RP.solve();
-    
-    //OUTPUT
     RP.printStates();
-
-    std::string outdir("out-dambreak/");
+    
+    //Write output files
+    std::string outdir(out_name + "/");
     create_directory(outdir);
 
     std::ofstream ufile(outdir+"velocity.txt");
     std::ofstream hfile(outdir+"height.txt");
     //std::ofstream afile(outdir+"soundspeed.txt");
+
+    int M = 1000;
+    double xl = -1000;
+    double xr = 1000;
+    double h = (xr-xl)/(M-1);
+    double t = 0.01;
 
     for (int i = 0; i < M; ++i)
     {
@@ -72,7 +86,6 @@ int main(int argc, char* argv[])
     ufile.close();
     hfile.close();
         //afile.close();
-    //END OUTPUT
 
     return 0;
 }

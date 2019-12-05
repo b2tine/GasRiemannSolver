@@ -101,6 +101,11 @@ void RiemannProblem::solve()
     H_ctr = secantMethod(rpfunc,sl->h,sr->h);
     
     //detectVacuumState();
+    if (H_ctr < 0.0 || std::isnan(H_ctr))
+    {
+        printf("ERROR: H_ctr = %g\n",H_ctr);
+        exit(1);
+    }
 
     //Compute defining characteristics of Riemann Solution
     if (H_ctr > sl->h)
