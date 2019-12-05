@@ -2,24 +2,24 @@ CXXFLAGS=-std=c++11 -g
 INCLUDE = -I../Common
 
 
-all: riemann_solver_test
+all: sw_riemann_solver_test
 
 
-#dambreak_test: dambreak_test.cpp riemann_problem.o
+#dambreak_test: dambreak_test.cpp sw_riemann_problem.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-#borewave_test: borewave_test.cpp riemann_problem.o
+#borewave_test: borewave_test.cpp sw_riemann_problem.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-riemann_solver_test: riemann_solver_test.cpp riemann_problem.o ../Common/util.o
+sw_riemann_solver_test: riemann_solver_test.cpp sw_riemann_problem.o ../Common/util.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-#shallow1d: shallow1d.cpp riemann_problem.o ../Common/util.o
+#shallow_water1d: shallow_water1d.cpp riemann_problem.o ../Common/util.o
 #	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
 
 
-riemann_problem.o: riemann_problem.cpp riemann_problem.h ../Common/secant_method.h
+sw_riemann_problem.o: sw_riemann_problem.cpp sw_riemann_problem.h ../Common/secant_method.h
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $<
 
 ../Common/util.o: ../Common/util.h
@@ -32,5 +32,5 @@ clean:
 	$(RM) *.o
 	$(RM) dambreak_test
 	$(RM) borewave_test
-	$(RM) riemann_solver_test
-	$(RM) shallow1d
+	$(RM) sw_riemann_solver_test
+	$(RM) shallow_water1d
