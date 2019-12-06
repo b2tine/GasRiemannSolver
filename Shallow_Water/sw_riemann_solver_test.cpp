@@ -4,6 +4,7 @@
 
 int main(int argc, char* argv[])
 {
+    //TODO: read these from input file
     /*
     double xl = atof(argv[1]);
     double xr = atof(argv[2]);
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < M; ++i)
     {
         double ksi = xl + i*h;
-        if (t > 0.0) ksi /= t;
+        //if (t > 0.0) ksi /= t;
 
         STATE U = RP(ksi);
         

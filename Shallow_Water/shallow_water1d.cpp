@@ -1,10 +1,21 @@
-#include "riemann_problem.h"
+#include "sw_riemann_problem.h"
 #include <util.h>
 
 
 int main()
 {
-    std::ifstream infile("in-gas");
+    if (argc < 3)
+    {
+        printf("ERROR: Require the input file name \
+                and output directory name.\n");
+        exit(1);
+    }
+
+    std::string in_name = argv[1];
+    std::string out_name = argv[2];
+
+    //Read input file
+    std::ifstream infile(in_name);
 
     std::vector<double> init;
     while (!infile.eof())
@@ -14,6 +25,7 @@ int main()
         init.push_back(val);
     }
 
+    //TODO: read these from input file
     double tfinal = 0.1;
     int max_tstep = 2000;
     double default_dt = 0.0005;
@@ -27,8 +39,8 @@ int main()
 
     double X[N];
 
-    double Q[N][3];
-    double Qnew[N][3];
+    double Q[N][2];
+    double Qnew[N][2];
     
     STATE U[N];
     STATE Unew[N];
@@ -36,26 +48,23 @@ int main()
     //generate grid and set initial condition
     for (int i = 0; i < N; ++i)
     {
-        double dens, velo, pres;
+        double velo, height;
 
         X[i] = xmin + ((double) i + 0.5)*dx;
 
         if (X[i] < xmid)
         {
-            dens = init[0];
-            velo = init[1];
-            pres = init[2];
+            velo = init[0];
+            height = init[1];
         }
         else
         {
-            dens = init[3];
-            velo = init[4];
-            pres = init[5];
+            velo = init[2];
+            height = init[3];
         }
 
-        Q[i][0] = dens;
-        Q[i][1] = dens*velo;
-        Q[i][2] = 0.5*dens*velo*velo + pres/(GAMMA - 1.0);
+        Q[i][0] = height;
+        Q[i][1] = velo*height
 
         U[i].rho = dens;
         U[i].u = velo;
@@ -72,32 +81,25 @@ int main()
 
 
     //write initial condition output files
-    std::string outdir("out-gas/");
-
-    std::string density_dir = outdir + "density/";
-    create_directory(density_dir);
+    std::string outdir(outdir + "/");
 
     std::string velocity_dir = outdir + "velocity/";
     create_directory(velocity_dir);
     
-    std::string pressure_dir = outdir + "pressure/";
-    create_directory(pressure_dir);
+    std::string pressure_dir = outdir + "height/";
+    create_directory(height_dir);
 
-
-    std::ofstream rhofile(density_dir+"density-0.txt");
     std::ofstream ufile(velocity_dir+"velocity-0.txt");
-    std::ofstream pfile(pressure_dir+"pressure-0.txt");
+    std::ofstream hfile(height_dir+"height-0.txt");
 
     for (int i = 0; i < N; ++i)
     {
-        rhofile << X[i] << " " << U[i].rho << "\n";
         ufile << X[i] << " " << U[i].u << "\n";
-        pfile << X[i] << " " << U[i].p << "\n";
+        hfile << X[i] << " " << U[i].h << "\n";
     }
 
-    rhofile.close();
     ufile.close();
-    pfile.close();
+    hfile.close();
 
     //Start Up Step
     RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
@@ -188,18 +190,15 @@ int main()
 
         //write output files
         std::string tstep = std::to_string(ts);
-        rhofile.open(density_dir+"density-"+tstep+".txt");
         ufile.open(velocity_dir+"velocity-"+tstep+".txt");
-        pfile.open(pressure_dir+"pressure-"+tstep+".txt");
+        hfile.open(height_dir+"height-"+tstep+".txt");
 
         for (int i = 0; i < N; ++i)
         {
-            rhofile << X[i] << " " << U[i].rho << "\n";
             ufile << X[i] << " " << U[i].u << "\n";
-            pfile << X[i] << " " << U[i].p << "\n";
+            hfile << X[i] << " " << U[i].h << "\n";
         }
 
-        rhofile.close();
         ufile.close();
         pfile.close();
 
