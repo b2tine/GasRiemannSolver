@@ -34,15 +34,15 @@ int main(int argc, char* argv[])
     std::string out_name = argv[2];
 
     //Read input file
-    std::ifstream infile(in_name);
-
     std::vector<double> init;
+    std::ifstream infile(in_name);
     while (!infile.eof())
     {
         double val;
         infile >> val;
         init.push_back(val);
     }
+    infile.close();
 
     double ul = init[0];
     double hl = init[1];
@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
 
     RiemannProblem RP(&sl,&sr);
     RP.solve();
+
     RP.printStates();
     RP.printWaves();
     

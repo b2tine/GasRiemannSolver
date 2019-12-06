@@ -21,7 +21,7 @@ const double HUGE = std::numeric_limits<double>::max();
 
 const double GAMMA = 1.4;
 
-enum class WAVETYPE {SHOCK,SIMPLE};
+enum class WAVETYPE {SIMPLE,SHOCK,NOWAVE};
 enum class DIRECTION {LEFT,RIGHT};
 
 struct STATE
@@ -108,6 +108,8 @@ class RiemannProblem
         }
 
         void solve();
+        void printStates();
+        void printWaves();
 
         STATE operator()(double ksi);
 
@@ -116,18 +118,14 @@ class RiemannProblem
             return this->operator()(x/t);
         }
 
-        //TODO: printing functions
-
-        void printStates();
-
-
     private:
 
-        STATE *sl, *sl_c, *sr_c, *sr;
         RP_Function rpfunc;
+        STATE *sl, *sl_c, *sr_c, *sr;
 
         double Pslip;
-        WAVETYPE LCW, RCW;
+        WAVETYPE LCW {WAVETYPE::NOWAVE};
+        WAVETYPE RCW {WAVETYPE::NOWAVE};
 
         double left_shockspeed;
         double left_trailing_fan_slope;

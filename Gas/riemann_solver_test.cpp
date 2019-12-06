@@ -4,7 +4,8 @@
 
 int main(int argc, char* argv[])
 {
-    //INIT OUTPUT:
+    //TODO: read these from input file
+    /*
     double xl = atof(argv[1]);
     double xr = atof(argv[2]);
     int M = atoi(argv[3]);
@@ -19,19 +20,29 @@ int main(int argc, char* argv[])
 
     double h = (M == 1) ? xr-xl : (xr-xl)/(M-1);
     if (h == 0.0) M = 1;
-    //END INIT OUTPUT
-
+    */
     
     //INPUT: Left and Right states, sl and sr
-    std::ifstream infile("in-RP");
+    if (argc < 3)
+    {
+        printf("ERROR: Require the input file name \
+                and output directory name.\n");
+        exit(1);
+    }
+    
+    std::string in_name(argv[1]);
+    std::string out_name(argv[2]);
 
+    //Read input file
     std::vector<double> init;
+    std::ifstream infile(in_name);
     while (!infile.eof())
     {
         double val;
         infile >> val;
         init.push_back(val);
     }
+    infile.close();
 
     double rhol = init[0];
     double ul = init[1];
@@ -40,9 +51,8 @@ int main(int argc, char* argv[])
     double rhor = init[3];
     double ur = init[4];
     double pr = init[5];
-    //END INPUT
 
-
+    //Initalize states and solve Riemann Problem
     STATE sl(rhol,ul,pl,"L");   
     STATE sr(rhor,ur,pr,"R");   
 
@@ -50,9 +60,10 @@ int main(int argc, char* argv[])
     RP.solve();
     
     RP.printStates();
+    RP.printWaves();
     
-    //OUTPUT
-    std::string outdir("out-RP/");
+    //Write output files
+    std::string outdir(out_name + "/");
     create_directory(outdir);
 
     std::ofstream rhofile(outdir+"density.txt");
@@ -60,10 +71,16 @@ int main(int argc, char* argv[])
     std::ofstream pfile(outdir+"pressure.txt");
     std::ofstream afile(outdir+"soundspeed.txt");
 
+    int M = 500;
+    double xl = -15;
+    double xr = 15;
+    double h = (xr-xl)/M;
+    double t = 1.0;
+
     for (int i = 0; i < M; ++i)
     {
         double ksi = xl + i*h;
-        if (t > 0.0) ksi /= t;
+        ksi /= t;
 
         STATE uR = RP(ksi);
         
@@ -77,7 +94,6 @@ int main(int argc, char* argv[])
     ufile.close();
     pfile.close();
     afile.close();
-    //END OUTPUT
 
     return 0;
 }

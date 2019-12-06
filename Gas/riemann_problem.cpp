@@ -37,10 +37,9 @@ std::string STATE::printinfo() const
     return std::string(ostring);
 }
 
-
+//Locate solution region of ksi = x/t and compute the solution
 STATE RiemannProblem::operator()(double ksi)
 {
-    //Locate solution region of ksi = x/t and compute the solution
     if (ksi < slip_slope)
     {
         if (LCW == WAVETYPE::SHOCK)
@@ -146,6 +145,35 @@ void RiemannProblem::printStates()
     std::cout << *sr << "\n";
 }
 
+void RiemannProblem::printWaves()
+{
+    printf("\n");
+    if (LCW == WAVETYPE::SHOCK)
+    {
+        printf("LCW is a Left Facing Shock:\n");
+        printf("\tleft_shockspeed = %g\n",left_shockspeed);
+    }
+    else if (LCW == WAVETYPE::SIMPLE)
+    {
+        printf("LCW is a Gamma+ Simple Wave:\n");
+        printf("\tleft_trailing_fan_slope = %g\n",left_trailing_fan_slope);
+        printf("\tleft_leading_fan_slope = %g\n",left_leading_fan_slope);
+    }
+    
+    printf("\n");
+    if (RCW == WAVETYPE::SHOCK)
+    {
+        printf("RCW is a Right Facing Shock:\n");
+        printf("right_shockspeed = %g\n",right_shockspeed);
+    }
+    else if (RCW == WAVETYPE::SIMPLE)
+    {
+        printf("RCW is a Gamma- Simple Wave:\n");
+        printf("right_leading_fan_slope = %g\n",right_leading_fan_slope);
+        printf("right_trailing_fan_slope = %g\n",right_trailing_fan_slope);
+    }
+}
+
 void RiemannProblem::detectVacuumState()
 {
     std::vector<STATE*> vacstates;
@@ -161,102 +189,82 @@ void RiemannProblem::detectVacuumState()
         
 double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center)
 {
+    double rhol = sl->rho;
+    double ul = sl->u;
+    double pl = sl->p;
+    double al = sl->a;
+
+    double p_lc = Pslip;
+    double rho_lc, u_lc, a_lc;
+
     if (Pslip > sl->p)
     {
         //LCW is Left Facing Shock Wave (LFS)
-        double ua = sl->u;
-        double rhoa = sl->rho;
-        double pa = sl->p;
-        double pb = Pslip;
+        double taul = 1.0/rhol;
+        double tau_lc = behind_state_specific_volume(rhol,pl,p_lc);
 
-        double taua = 1.0/rhoa;
-        double taub = behind_state_specific_volume(rhoa,pa,pb);
-        double rhob = 1.0/taub;
-        
         //M > 0 this case
-        double M = std::sqrt((pb - pa)/(taua - taub));
-        double ub = ua - (pb - pa)/M;
-        
-        //save center state variables
-        sl_center->u = ub;
-        sl_center->rho = rhob;
-        sl_center->p = pb;
-        sl_center->a = constant_state_soundspeed(rhob,pb);
-        
-        return ub;
+        double M = std::sqrt((p_lc - pl)/(taul - tau_lc));
+        u_lc = ul - (p_lc - pl)/M;
+
+        rho_lc = 1.0/tau_lc;
+        a_lc = constant_state_soundspeed(rho_lc,p_lc);
     }
     else
     {
         //LCW is a GAMMA PLUS Simple Wave (S+)
-        double u0 = sl->u;
-        double rho0 = sl->rho;
-        double p0 = sl->p;
-        double a0 = sl->a;
-
-        //near slip line state variables
-        double p1 = Pslip;
-        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
-        double a1 = constant_state_soundspeed(rho1,p1);
-        double u1 = u0 + 2.0*(a0 - a1)/(GAMMA-1.0);
-
-        //save center state variables
-        sl_center->u = u1;
-        sl_center->rho = rho1;
-        sl_center->p = p1;
-        sl_center->a = a1;
-        
-        return u1;
+        rho_lc = rhol*pow(p_lc/pl,1.0/GAMMA);
+        a_lc = constant_state_soundspeed(rho_lc,p_lc);
+        u_lc = ul - 2.0*(a_lc - al)/(GAMMA-1.0);
     }
+
+    //save center state variables
+    sl_center->u = u_lc;
+    sl_center->rho = rho_lc;
+    sl_center->p = p_lc;
+    sl_center->a = a_lc;
+    
+    return u_lc;
 }
 
 double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr)
 {
+    double rhor = sr->rho;
+    double ur = sr->u;
+    double pr = sr->p;
+    double ar = sr->a;
+
+    double p_rc = Pslip;
+    double rho_rc, u_rc, a_rc;
+
     if (Pslip > sr->p)
     {
         //RCW is a Right Facing Shock Wave (RFS)
-        double ua = sr->u;
-        double rhoa = sr->rho;
-        double pa = sr->p;
-        double pb = Pslip;
+        double taur = 1.0/rhor;
+        double tau_rc = behind_state_specific_volume(rhor,pr,p_rc);
 
-        double taua = 1.0/rhoa;
-        double taub = behind_state_specific_volume(rhoa,pa,pb);
-        double rhob = 1.0/taub;
-        
         //M < 0 this case
-        double M = -std::sqrt((pb - pa)/(taua - taub));
-        double ub = ua - (pb - pa)/M;
-        
-        //save center state variables
-        sr_center->u = ub;
-        sr_center->rho = rhob;
-        sr_center->p = pb;
-        sr_center->a = constant_state_soundspeed(rhob,pb);
-        
-        return ub;
+        double M = -std::sqrt((p_rc - pr)/(taur - tau_rc));
+        u_rc = ur - (p_rc - pr)/M;
+
+        rho_rc = 1.0/tau_rc;
+        a_rc = constant_state_soundspeed(rho_rc,p_rc);
     }
     else
     {
         //RCW is a GAMMA MINUS Simple Wave (S-)
-        double u0 = sr->u;
-        double rho0 = sr->rho;
-        double p0 = sr->p;
-        double a0 = sr->a;
-
-        //near slip line state variables
-        double p1 = Pslip;
-        double rho1 = rho0*pow(p1/p0,1.0/GAMMA);
-        double a1 = constant_state_soundspeed(rho1,p1);
-        double u1 = u0 - 2.0*(a0 - a1)/(GAMMA-1.0);
-        
-        //save center state variables
-        sr_center->u = u1;
-        sr_center->rho = rho1;
-        sr_center->p = p1;
-        sr_center->a = a1;
-        
-        return u1;
+        rho_rc = rhor*pow(p_rc/pr,1.0/GAMMA);
+        a_rc = constant_state_soundspeed(rho_rc,p_rc);
+        u_rc = ur + 2.0*(a_rc - ar)/(GAMMA-1.0);
     }
+    
+    //save center state variables
+    sr_center->u = u_rc;
+    sr_center->rho = rho_rc;
+    sr_center->p = p_rc;
+    sr_center->a = a_rc;
+
+    return u_rc;
 }
 
 //TODO: implement variable gamma

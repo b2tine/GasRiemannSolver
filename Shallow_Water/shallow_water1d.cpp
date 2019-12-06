@@ -15,15 +15,15 @@ int main(int argc, char* argv[])
     std::string out_name = argv[2];
 
     //Read input file
-    std::ifstream infile(in_name);
-
     std::vector<double> init;
+    std::ifstream infile(in_name);
     while (!infile.eof())
     {
         double val;
         infile >> val;
         init.push_back(val);
     }
+    infile.close();
 
     //TODO: read these from input file
     double tfinal = 0.01;
@@ -119,6 +119,8 @@ int main(int argc, char* argv[])
 
     ufile.close();
     hfile.close();
+    pfile.close();
+    cfile.close();
 
     //Start Up Step
     RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
@@ -160,7 +162,7 @@ int main(int argc, char* argv[])
             QFlux[0] = VP.u*VP.h - VM.u*VM.h;
             QFlux[1] = VP.u*VP.u*VP.h + VP.p - (VM.u*VM.u*VM.h + VM.p);
 
-            //Update Conserved Variables and States
+            //Update Conserved Variables and Field States
             double height = Q[i][0] - QFlux[0]*dt/dx;
             double velheight = Q[i][1] - QFlux[1]*dt/dx;
 
@@ -202,7 +204,6 @@ int main(int argc, char* argv[])
         }
 
         //write output files
-    
         sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
         sprintf(hfilename,"%s/height-%04d.txt",height_dir.c_str(),ts);
         sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
@@ -226,8 +227,8 @@ int main(int argc, char* argv[])
         pfile.close();
         cfile.close();
 
-        logfile << "step = " << ts << " ";
-        logfile << "time = " << time << " ";
+        logfile << "step = " << ts << "   ";
+        logfile << "time = " << time << "   ";
         logfile << "dt = " << dt << "\n\n";
 
         if (time >= tfinal)

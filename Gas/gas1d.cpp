@@ -2,18 +2,30 @@
 #include <util.h>
 
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::ifstream infile("in-gas");
+    if (argc < 3)
+    {
+        printf("ERROR: Require the input file name \
+                and output directory name.\n");
+        exit(1);
+    }
 
+    std::string in_name = argv[1];
+    std::string out_name = argv[2];
+
+    //Read input file
     std::vector<double> init;
+    std::ifstream infile(in_name);
     while (!infile.eof())
     {
         double val;
         infile >> val;
         init.push_back(val);
     }
+    infile.close();
 
+    //TODO: read these from input file
     double tfinal = 0.1;
     int max_tstep = 2000;
     double default_dt = 0.0005;
@@ -72,7 +84,7 @@ int main()
 
 
     //write initial condition output files
-    std::string outdir("out-gas/");
+    std::string outdir(out_name + "/");
 
     std::string density_dir = outdir + "density/";
     create_directory(density_dir);
@@ -83,21 +95,37 @@ int main()
     std::string pressure_dir = outdir + "pressure/";
     create_directory(pressure_dir);
 
+    std::string soundspeed_dir = outdir + "soundspeed/";
+    create_directory(soundspeed_dir);
 
-    std::ofstream rhofile(density_dir+"density-0.txt");
-    std::ofstream ufile(velocity_dir+"velocity-0.txt");
-    std::ofstream pfile(pressure_dir+"pressure-0.txt");
+    char rhofilename[100];
+    sprintf(rhofilename,"%s/height-%04d.txt",density_dir.c_str(),0);
+    std::ofstream rhofile(rhofilename);
 
+    char ufilename[100];
+    sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),0);
+    std::ofstream ufile(ufilename);
+
+    char pfilename[100];
+    sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),0);
+    std::ofstream pfile(pfilename);
+
+    char afilename[100];
+    sprintf(afilename,"%s/soundspeed-%04d.txt",soundspeed_dir.c_str(),0);
+    std::ofstream afile(afilename);
+    
     for (int i = 0; i < N; ++i)
     {
         rhofile << X[i] << " " << U[i].rho << "\n";
         ufile << X[i] << " " << U[i].u << "\n";
         pfile << X[i] << " " << U[i].p << "\n";
+        afile << X[i] << " " << U[i].a << "\n";
     }
 
     rhofile.close();
     ufile.close();
     pfile.close();
+    afile.close();
 
     //Start Up Step
     RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
@@ -140,7 +168,7 @@ int main()
             QFlux[2] = VP.u*(0.5*VP.rho*VP.u*VP.u + VP.p/(GAMMA - 1.0) + VP.p)
                         - VM.u*(0.5*VM.rho*VM.u*VM.u + VM.p/(GAMMA - 1.0) + VM.p);
 
-            //Update Conserved Variables and States
+            //Update Conserved Variables and Field States
             double dens = Q[i][0] - QFlux[0]*dt/dx;
             double momn = Q[i][1] - QFlux[1]*dt/dx;
             double energy = Q[i][2] - QFlux[2]*dt/dx;
@@ -187,25 +215,32 @@ int main()
         }
 
         //write output files
-        std::string tstep = std::to_string(ts);
-        rhofile.open(density_dir+"density-"+tstep+".txt");
-        ufile.open(velocity_dir+"velocity-"+tstep+".txt");
-        pfile.open(pressure_dir+"pressure-"+tstep+".txt");
+        sprintf(rhofilename,"%s/density-%04d.txt",density_dir.c_str(),ts);
+        sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
+        sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
+        sprintf(afilename,"%s/soundspeed-%04d.txt",soundspeed_dir.c_str(),ts);
+        
+        rhofile.open(rhofilename);
+        ufile.open(ufilename);
+        pfile.open(pfilename);
+        afile.open(afilename);
 
         for (int i = 0; i < N; ++i)
         {
             rhofile << X[i] << " " << U[i].rho << "\n";
             ufile << X[i] << " " << U[i].u << "\n";
             pfile << X[i] << " " << U[i].p << "\n";
+            afile << X[i] << " " << U[i].a << "\n";
         }
 
         rhofile.close();
         ufile.close();
         pfile.close();
+        afile.close();
 
-        logfile << "step = " << ts << " ";
-        logfile << "dt = " << dt << " ";
-        logfile << "time = " << time << "\n\n";
+        logfile << "step = " << ts << "   ";
+        logfile << "time = " << time << "   ";
+        logfile << "dt = " << dt << "\n\n";
 
         if (time >= tfinal)
             break;

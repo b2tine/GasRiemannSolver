@@ -164,21 +164,25 @@ void RiemannProblem::printWaves()
     printf("\n");
     if (LCW == WAVETYPE::SHOCK)
     {
-        printf("left_shockspeed = %g\n",left_shockspeed);
+        printf("LCW is a Left Facing Shock:\n");
+        printf("\tleft_shockspeed = %g\n",left_shockspeed);
     }
     else if (LCW == WAVETYPE::SIMPLE)
     {
-        printf("left_trailing_fan_slope = %g\n",left_trailing_fan_slope);
-        printf("left_leading_fan_slope = %g\n",left_leading_fan_slope);
+        printf("LCW is a Gamma+ Simple Wave:\n");
+        printf("\tleft_trailing_fan_slope = %g\n",left_trailing_fan_slope);
+        printf("\tleft_leading_fan_slope = %g\n",left_leading_fan_slope);
     }
     
     printf("\n");
     if (RCW == WAVETYPE::SHOCK)
     {
+        printf("RCW is a Right Facing Shock:\n");
         printf("right_shockspeed = %g\n",right_shockspeed);
     }
     else if (RCW == WAVETYPE::SIMPLE)
     {
+        printf("RCW is a Gamma- Simple Wave:\n");
         printf("right_leading_fan_slope = %g\n",right_leading_fan_slope);
         printf("right_trailing_fan_slope = %g\n",right_trailing_fan_slope);
     }
@@ -187,7 +191,7 @@ void RiemannProblem::printWaves()
 double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
 {
     double ul, hl;
-    double ul_c, hl_c;
+    double u_lc, h_lc;
 
     if (H > sl->h)
     {
@@ -195,8 +199,8 @@ double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
         ul = sl->u;
         hl = sl->h;
 
-        hl_c = H;
-        ul_c = ul - (hl_c - hl)*sqrt(0.5*G*(hl + hl_c)/(hl*hl_c));
+        h_lc = H;
+        u_lc = ul - (h_lc - hl)*sqrt(0.5*G*(hl + h_lc)/(hl*h_lc));
         
     }
     else
@@ -205,24 +209,24 @@ double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
         ul = sl->u;
         hl = sl->h;
 
-        hl_c = H;
-        ul_c = ul - 2.0*(sqrt(G*hl_c) - sqrt(G*hl));
+        h_lc = H;
+        u_lc = ul - 2.0*(sqrt(G*h_lc) - sqrt(G*hl));
  
     }
 
     //save center state variables
-    sl_center->u = ul_c;
-    sl_center->h = hl_c;
+    sl_center->u = u_lc;
+    sl_center->h = h_lc;
     sl_center->computePressure();
     sl_center->computeCelerity();
         
-    return ul_c;
+    return u_lc;
 }
 
 double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
 {
     double ur, hr;
-    double ur_c, hr_c;
+    double u_rc, h_rc;
 
     if (H > sr->h)
     {
@@ -231,7 +235,7 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         hr = sr->h;
 
         hr_c = H;
-        ur_c = ur + (hr_c - hr)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
+        u_rc = ur + (h_rc - hr)*sqrt(0.5*G*(hr + h_rc)/(hr*h_rc));
     }
     else
     {
@@ -239,15 +243,15 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         ur = sr->u;
         hr = sr->h;
 
-        hr_c = H;
-        ur_c = ur + 2.0*(sqrt(G*hr_c) - sqrt(G*hr));
+        h_rc = H;
+        u_rc = ur + 2.0*(sqrt(G*h_rc) - sqrt(G*hr));
     }
     
     //save center state variables
-    sr_center->u = ur_c;
-    sr_center->h = hr_c;
+    sr_center->u = u_rc;
+    sr_center->h = h_rc;
     sr_center->computePressure();
     sr_center->computeCelerity();
         
-    return ur_c;
+    return u_rc;
 }

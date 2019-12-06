@@ -106,6 +106,8 @@ class RiemannProblem
         }
 
         void solve();
+        void printStates();
+        void printWaves();
 
         STATE operator()(double ksi);
 
@@ -114,19 +116,14 @@ class RiemannProblem
             return this->operator()(x/t);
         }
 
-        void printStates();
-        void printWaves();
-
-
     private:
 
-        STATE *sl, *sl_c, *sr_c, *sr;
         RP_Function rpfunc;
+        STATE *sl, *sl_c, *sr_c, *sr;
 
         double H_ctr;
-
-        WAVETYPE LCW{WAVETYPE::NOWAVE};
-        WAVETYPE RCW{WAVETYPE::NOWAVE};
+        WAVETYPE LCW {WAVETYPE::NOWAVE};
+        WAVETYPE RCW {WAVETYPE::NOWAVE};
 
         double left_shockspeed;
         double left_trailing_fan_slope;
@@ -134,73 +131,7 @@ class RiemannProblem
         double right_leading_fan_slope;
         double right_trailing_fan_slope;
         double right_shockspeed;
-
-        //void detectVacuumState();
 };
 
-/*
-class VacuumStateException : public std::runtime_error
-{
-    public:
-
-        VacuumStateException(const std::string& arg)
-            : std::runtime_error{arg}
-        {
-            std::ostringstream oss;
-            oss << "ERROR: Vacuum State detected " << arg << ".\n";
-            message = oss.str();
-        }
-
-        VacuumStateException(const std::string& arg,
-                             const std::vector<STATE*>& vstates)
-            : VacuumStateException{arg}
-        {
-            std::ostringstream oss;
-            for (STATE* s : vstates)
-                oss << *s << "\n";
-            message += oss.str();
-        }
-
-        const char* what() const noexcept override
-        {
-            return message.c_str();
-        }
-
-    private:
-
-        std::string message;
-};
-*/
-
-/*
-//SHOCK WAVE FUNCTIONS
-
-double behind_state_specific_volume(double rhoa, double pa, double pb);
-
-double behind_state_pressure(double rhoa, double pa, double rhob);
-
-
-//SIMPLE WAVE FUNCTIONS
-
-double constant_state_soundspeed(double rho, double pres);
-
-double near_piston_soundspeed(double u1, DIRECTION dir,
-                              double u0, double rho0, double pres0);
-
-double isentropic_relation_density(double a1, double rho0, double pres0);
-
-double isentropic_relation_pressure(double a1, double rho1);
-
-double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0);
-
-double rarefaction_velocity_xt(double x, double t,
-                            DIRECTION dir, double u0, double a0);
-
-double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0);
-
-double rarefaction_soundspeed_xt(double x, double t,
-                              DIRECTION dir, double u0, double a0);
-
-*/
 
 #endif
