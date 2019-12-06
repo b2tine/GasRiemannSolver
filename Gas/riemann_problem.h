@@ -129,13 +129,13 @@ class RiemannProblem
         double Pslip;
         WAVETYPE LCW, RCW;
 
-        double left_shockspeed {HUGE};
-        double left_trailing_fan_slope {HUGE};
-        double left_leading_fan_slope {HUGE};
-        double slip_slope {0.0};
-        double right_leading_fan_slope {-HUGE};
-        double right_trailing_fan_slope {-HUGE};
-        double right_shockspeed {-HUGE};
+        double left_shockspeed;
+        double left_trailing_fan_slope;
+        double left_leading_fan_slope;
+        double slip_slope;
+        double right_leading_fan_slope;
+        double right_trailing_fan_slope;
+        double right_shockspeed;
 
         void detectVacuumState();
 };

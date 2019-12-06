@@ -5,7 +5,10 @@
 
 STATE::STATE(double U, double H)
     : u{U}, h{H}
-{}
+{
+    computePressure();
+    computeCelerity();
+}
 
 STATE::STATE(double U, double H, const std::string& ID)
     : STATE{U,H}
@@ -13,33 +16,23 @@ STATE::STATE(double U, double H, const std::string& ID)
     id = ID;
 }
 
-/*
-STATE::STATE(double U, double H, double P, double A)
-    : u{U}, h{H}, p{P}, a{A}
-{}
-
-STATE::STATE(double U, double H, double P, double A, const std::string& ID)
-    : STATE{U,H,P,A}
+void STATE::computePressure()
 {
-    id = ID;
+    assert(h >= 0.0);
+    p = 0.5*G*h*h;
 }
-*/
 
-/*
-void STATE::computeSoundSpeed()
+void STATE::computeCelerity()
 {
-    a = constant_state_soundspeed(rho,p);
+    assert(h >= 0.0);
+    c = sqrt(G*h);
 }
-*/
 
 std::string STATE::printinfo() const
 {
     char ostring[250];
-    //sprintf(ostring,"%5s (%g, %g, %g, %g)",
-      //      ((id.empty()) ? "" : id + " :").c_str(),u,h,p,a);
-
-    sprintf(ostring,"%5s (%g, %g)",
-            ((id.empty()) ? "" : id + " :").c_str(),u,h);
+    sprintf(ostring,"%5s (%g, %g, %g, %g)",
+            ((id.empty()) ? "" : id + " :").c_str(),u,h,p,c);
     return std::string(ostring);
 }
 
@@ -52,59 +45,78 @@ STATE RiemannProblem::operator()(double ksi)
         if (ksi < left_shockspeed)
             return *sl;
         else
-            return *sl_c;
+        {
+            if (RCW == WAVETYPE::SHOCK)
+            {
+                if (ksi < right_shockspeed)
+                    return *sl_c;
+                else
+                    return *sr;
+            }
+            else if (RCW == WAVETYPE::SIMPLE)
+            {
+                if (ksi < right_leading_fan_slope)
+                    return *sl_c;
+                else if (ksi < right_trailing_fan_slope)
+                {
+                    double u_fan = (sr->u - 2.0*sqrt(G*sr->h) + 2.0*ksi)/3.0;
+                    double h_fan = (sr->u - 2.0*sqrt(G*sr->h) - ksi)/3.0;
+                    h_fan *= h_fan/G;
+                    return STATE(u_fan,h_fan);
+                }
+                else
+                    return *sr;
+            }
+        }
     }
-    else
+    else if(LCW == WAVETYPE::SIMPLE)
     {
         if (ksi < left_trailing_fan_slope)
             return *sl;
         else if (ksi < left_leading_fan_slope)
         {
             double u_fan = (sl->u + 2.0*sqrt(G*sl->h) + 2.0*ksi)/3.0;
-            double h_fan = (2.0*sqrt(G*sl->h) + sl->u - ksi)/3.0;
+            double h_fan = (sl->u + 2.0*sqrt(G*sl->h) - ksi)/3.0;
             h_fan *= h_fan/G;
             return STATE(u_fan,h_fan);
         }
         else
-            return *sl_c;
-    }
-    
-    if (RCW == WAVETYPE::SHOCK)
-    {
-        if (ksi < right_shockspeed)
-            return *sr_c;
-        else
-            return *sr;
-    }
-    else
-    {
-        if (ksi < right_leading_fan_slope)
-            return *sr_c;
-        else if (ksi < right_trailing_fan_slope)
         {
-            double u_fan = (sr->u - 2.0*sqrt(G*sr->h) + 2.0*ksi)/3.0;
-            double h_fan = (2.0*sqrt(G*sr->h) - sr->u + ksi)/3.0;
-            h_fan *= h_fan/G;
-            return STATE(u_fan,h_fan);
+            if (RCW == WAVETYPE::SHOCK)
+            {
+                if (ksi < right_shockspeed)
+                    return *sl_c;
+                else
+                    return *sr;
+            }
+            else if (RCW == WAVETYPE::SIMPLE)
+            {
+                if (ksi < right_leading_fan_slope)
+                    return *sl_c;
+                else if (ksi < right_trailing_fan_slope)
+                {
+                    double u_fan = (sr->u - 2.0*sqrt(G*sr->h) + 2.0*ksi)/3.0;
+                    double h_fan = (sr->u - 2.0*sqrt(G*sr->h) - ksi)/3.0;
+                    h_fan *= h_fan/G;
+                    return STATE(u_fan,h_fan);
+                }
+                else
+                    return *sr;
+            }
         }
-        else
-            return *sr;
     }
 }
 
+//TODO: if dry bed dambreak, then only 2 constant states
+//      seperated by rarefaction wave. (skip secant method)
 void RiemannProblem::solve()
 {
-    //sl->computeSoundSpeed();
-    //sr->computeSoundSpeed();
-
     //Solve F(H_ctr) = ul_center(H_ctr) - ur_center(H_ctr) = 0
     H_ctr = secantMethod(rpfunc,sl->h,sr->h);
-    
-    //detectVacuumState();
-    if (H_ctr < 0.0 || std::isnan(H_ctr))
+    if (fabs(sl_c->u) < 1.0e-9)
     {
-        printf("ERROR: H_ctr = %g\n",H_ctr);
-        exit(1);
+        sl_c->u = 0.0;
+        sr_c->u = 0.0;
     }
 
     //Compute defining characteristics of Riemann Solution
@@ -141,93 +153,104 @@ void RiemannProblem::solve()
 
 void RiemannProblem::printStates()
 {
+    std::cout << "\n";
     std::cout << *sl << "\n";
     std::cout << *sl_c << "\n";
     std::cout << *sr_c << "\n";
     std::cout << *sr << "\n";
 }
 
-/*
-void RiemannProblem::detectVacuumState()
+void RiemannProblem::printWaves()
 {
-    std::vector<STATE*> vacstates;
-    for (STATE* s : {sl, sl_c, sr_c, sr})
+    printf("\n");
+    if (LCW == WAVETYPE::SHOCK)
     {
-        if (s->a <= 0.0)
-            vacstates.push_back(s);
+        printf("left_shockspeed = %g\n",left_shockspeed);
     }
-
-    if (!vacstates.empty())
-        throw VacuumStateException("",vacstates);
+    else if (LCW == WAVETYPE::SIMPLE)
+    {
+        printf("left_trailing_fan_slope = %g\n",left_trailing_fan_slope);
+        printf("left_leading_fan_slope = %g\n",left_leading_fan_slope);
+    }
+    
+    printf("\n");
+    if (RCW == WAVETYPE::SHOCK)
+    {
+        printf("right_shockspeed = %g\n",right_shockspeed);
+    }
+    else if (RCW == WAVETYPE::SIMPLE)
+    {
+        printf("right_leading_fan_slope = %g\n",right_leading_fan_slope);
+        printf("right_trailing_fan_slope = %g\n",right_trailing_fan_slope);
+    }
 }
-*/
-        
+
 double LeftCenteredWave(double H, STATE* sl, STATE* sl_center)
 {
+    double ul, hl;
+    double ul_c, hl_c;
+
     if (H > sl->h)
     {
         //LCW is Left Facing Shock Wave (LFS)
-        double ul = sl->u;
-        double hl = sl->h;
+        ul = sl->u;
+        hl = sl->h;
 
-        double hl_c = H;
-        double ul_c = ul - (hl_c - hl)*sqrt(0.5*G*(hl + hl_c)/(hl*hl_c));
+        hl_c = H;
+        ul_c = ul - (hl_c - hl)*sqrt(0.5*G*(hl + hl_c)/(hl*hl_c));
         
-        //save center state variables
-        sl_center->u = ul_c;
-        sl_center->h = hl_c;
-        
-        return ul_c;
     }
     else
     {
         //LCW is a GAMMA PLUS Simple Wave (S+)
-        double ul = sl->u;
-        double hl = sl->h;
+        ul = sl->u;
+        hl = sl->h;
 
-        double hl_c = H;
-        double ul_c = ul - 2.0*(sqrt(G*hl_c) - sqrt(G*hl));
-
-        //save center state variables
-        sl_center->u = ul_c;
-        sl_center->h = hl_c;
-        
-        return ul_c;
+        hl_c = H;
+        ul_c = ul - 2.0*(sqrt(G*hl_c) - sqrt(G*hl));
+ 
     }
+
+    //save center state variables
+    sl_center->u = ul_c;
+    sl_center->h = hl_c;
+    sl_center->computePressure();
+    sl_center->computeCelerity();
+        
+    return ul_c;
 }
 
 double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
 {
+    double ur, hr;
+    double ur_c, hr_c;
+
     if (H > sr->h)
     {
         //RCW is a Right Facing Shock Wave (RFS)
-        double ur = sr->u;
-        double hr = sr->h;
+        ur = sr->u;
+        hr = sr->h;
 
-        double hr_c = H;
-        double ur_c = ur + (hr_c - hr)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
-        
-        //save center state variables
-        sr_center->u = ur_c;
-        sr_center->h = hr_c;
-        
-        return ur_c;
+        hr_c = H;
+        ur_c = ur + (hr_c - hr)*sqrt(0.5*G*(hr + hr_c)/(hr*hr_c));
     }
     else
     {
         //RCW is a GAMMA MINUS Simple Wave (S-)
-        double ur = sr->u;
-        double hr = sr->h;
+        ur = sr->u;
+        hr = sr->h;
 
-        double hr_c = H;
-        double ur_c = ur + 2.0*(sqrt(G*hr_c) - sqrt(G*hr));
-
-        //save center state variables
-        sr_center->u = ur_c;
-        sr_center->h = hr_c;
-        
-        return ur_c;
+        hr_c = H;
+        ur_c = ur + 2.0*(sqrt(G*hr_c) - sqrt(G*hr));
     }
+    
+    //save center state variables
+    sr_center->u = ur_c;
+    sr_center->h = hr_c;
+    sr_center->computePressure();
+    sr_center->computeCelerity();
+        
+    return ur_c;
 }
 
 /*

@@ -66,10 +66,8 @@ int main()
         Q[i][0] = height;
         Q[i][1] = velo*height
 
-        U[i].rho = dens;
         U[i].u = velo;
-        U[i].p = pres;
-        U[i].computeSoundSpeed();
+        U[i].h = height;
     }
     
     //Dirichlet Boundaries

@@ -18,7 +18,7 @@
 
 const double HUGE = std::numeric_limits<double>::max();
 
-enum class WAVETYPE {SHOCK,SIMPLE};
+enum class WAVETYPE {SIMPLE,SHOCK,NOWAVE};
 enum class DIRECTION {LEFT,RIGHT};
 
 
@@ -28,8 +28,8 @@ struct STATE
 {
     double u {0.0};       //velocity
     double h {0.0};       //height
-    //double p {0.0};       //pressure
-    //double a {-1.0};      //"soundspeed"
+    double p {0.0};       //pressure
+    double c {0.0};       //celerity
     
     std::string id;
 
@@ -43,10 +43,9 @@ struct STATE
 
     STATE(double U, double H);
     STATE(double U, double H, const std::string& ID);
-    //STATE(double U, double H, double P, double A);
-    //STATE(double U, double H, double P, double A, const std::string& ID);
 
-    //void computeSoundSpeed();
+    void computePressure();
+    void computeCelerity();
 
     std::string printinfo() const;
 
@@ -118,6 +117,7 @@ class RiemannProblem
         //TODO: printing functions
 
         void printStates();
+        void printWaves();
 
 
     private:
@@ -126,14 +126,15 @@ class RiemannProblem
         RP_Function rpfunc;
 
         double H_ctr;
-        WAVETYPE LCW, RCW;
+        WAVETYPE LCW{WAVETYPE::NOWAVE};
+        WAVETYPE RCW{WAVETYPE::NOWAVE};
 
-        double left_shockspeed {HUGE};
-        double left_trailing_fan_slope {HUGE};
-        double left_leading_fan_slope {HUGE};
-        double right_leading_fan_slope {-HUGE};
-        double right_trailing_fan_slope {-HUGE};
-        double right_shockspeed {-HUGE};
+        double left_shockspeed;
+        double left_trailing_fan_slope;
+        double left_leading_fan_slope;
+        double right_leading_fan_slope;
+        double right_trailing_fan_slope;
+        double right_shockspeed;
 
         //void detectVacuumState();
 };

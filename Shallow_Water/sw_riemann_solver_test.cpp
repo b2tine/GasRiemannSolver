@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
     RiemannProblem RP(&sl,&sr);
     RP.solve();
     RP.printStates();
+    RP.printWaves();
     
     //Write output files
     std::string outdir(out_name + "/");
@@ -66,16 +67,16 @@ int main(int argc, char* argv[])
     std::ofstream hfile(outdir+"height.txt");
     //std::ofstream afile(outdir+"soundspeed.txt");
 
-    int M = 1000;
-    double xl = -1000;
-    double xr = 1000;
-    double h = (xr-xl)/(M-1);
-    double t = 0.01;
+    int M = 500;
+    double xl = -15;
+    double xr = 15;
+    double h = (xr-xl)/M;
+    double t = 1.0;
 
     for (int i = 0; i < M; ++i)
     {
         double ksi = xl + i*h;
-        //if (t > 0.0) ksi /= t;
+        ksi /= t;
 
         STATE U = RP(ksi);
         
