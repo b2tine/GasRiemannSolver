@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
 
     std::ofstream ufile(outdir+"velocity.txt");
     std::ofstream hfile(outdir+"height.txt");
-    //std::ofstream afile(outdir+"soundspeed.txt");
+    std::ofstream pfile(outdir+"pressure.txt");
+    std::ofstream cfile(outdir+"celerity.txt");
 
     int M = 500;
     double xl = -15;
@@ -82,12 +83,14 @@ int main(int argc, char* argv[])
         
         ufile << ksi << " " << U.u << "\n";
         hfile << ksi << " " << U.h << "\n";
-        //afile << ksi << " " << U.a << "\n";
+        pfile << ksi << " " << U.p << "\n";
+        cfile << ksi << " " << U.c << "\n";
     }
 
     ufile.close();
     hfile.close();
-        //afile.close();
+    pfile.close();
+    cfile.close();
 
     return 0;
 }

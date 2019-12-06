@@ -36,10 +36,9 @@ std::string STATE::printinfo() const
     return std::string(ostring);
 }
 
-
+//Locate solution region of ksi = x/t and compute the solution
 STATE RiemannProblem::operator()(double ksi)
 {
-    //Locate solution region of ksi = x/t and compute the solution
     if (LCW == WAVETYPE::SHOCK)
     {
         if (ksi < left_shockspeed)
@@ -252,96 +251,3 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         
     return ur_c;
 }
-
-/*
-
-//SHOCK WAVE FUNCTIONS
-
-double behind_state_specific_volume(double rhoa, double pa, double pb)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP*pa + GM*pb)/(GP*pb + GM*pa)/rhoa;
-    //TODO: from Hugoniot function calculate for variable gamma
-}
-
-double behind_state_pressure(double rhoa, double pa, double rhob)
-{
-    double GP = GAMMA + 1.0;
-    double GM = GAMMA - 1.0;
-    return (GP/rhoa - GM/rhob)/(GP/rhob - GM/rhoa)*pa;
-    //TODO: from Hugoniot function calculate for variable gamma
-}
-
-
-//SIMPLE WAVE FUNCTIONS
-
-double constant_state_soundspeed(double rho, double pres)
-{
-    return std::sqrt(GAMMA*pres/rho);
-}
-
-double near_piston_soundspeed(double u1, DIRECTION dir,
-        double u0, double rho0, double pres0)
-       
-{
-    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
-    double a0 = constant_state_soundspeed(rho0,pres0);
-    double a = a0 + sign*0.5*(GAMMA-1.0)*(u1-u0);
-    //Variable Gamma:
-    //double a = (a0/(gamma0-1.0) + sign*0.5*(u1-u0))/(gamma1-1.0);
-    if (a <= 0.0)
-        throw VacuumStateException("near piston head");
-    return a;
-}
-
-//a1 is the near piston soundspeed, or a soundspeed in the rarefaction fan.
-double isentropic_relation_density(double a1, double rho0, double pres0)
-{
-    double arg = a1*a1*pow(rho0,GAMMA)/GAMMA/pres0;
-    return pow(arg,1.0/(GAMMA-1.0));
-}
-
-//a1 is the near piston soundspeed, rho1 is near piston density.
-//Or a1 and rho1 are state values along a characteristic in the rarefaction fan.
-double isentropic_relation_pressure(double a1, double rho1)
-{
-    return a1*a1*rho1/GAMMA;
-}
-
-double rarefaction_velocity(double ksi, DIRECTION dir, double u0, double a0)
-{
-    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
-    return (u0*(GAMMA-1.0) + 2.0*(ksi - sign*a0))/(GAMMA+1.0);
-    //Variable Gamma:
-    //return (u0*(gamma1-1.0)
-      //      + 2.0*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0)))/(gamma1+1.0);
-}
-
-double rarefaction_velocity_xt(double x, double t,
-                               DIRECTION dir, double u0, double a0)
-{
-    assert(t > 0.0);
-    return rarefaction_velocity(x/t,dir,u0,a0);
-}
-
-double rarefaction_soundspeed(double ksi, DIRECTION dir, double u0, double a0)
-{
-    double sign = ((dir == DIRECTION::LEFT) ? 1.0 : -1.0);
-    double a_fan = a0 + sign*(ksi - sign*a0 - u0)*(GAMMA-1.0)/(GAMMA+1.0);
-    //Variable Gamma:
-    //double a_fan = a0*(gamma1-1.0)/(gamma0-1.0) 
-     //   + sign*(ksi - sign*a0*(gamma1-1.0)/(gamma0-1.0) - u0)*(gamma1-1.0)/(gamma1+1.0);
-    if (a_fan <= 0.0)
-        throw VacuumStateException("in fan region");
-    return a_fan;
-}
-
-double rarefaction_soundspeed_xt(double x, double t,
-                                 DIRECTION dir, double u0, double a0)
-{
-    assert(t > 0.0);
-    return rarefaction_soundspeed(x/t,dir,u0,a0);
-}
-*/
-

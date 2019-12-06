@@ -114,8 +114,6 @@ class RiemannProblem
             return this->operator()(x/t);
         }
 
-        //TODO: printing functions
-
         void printStates();
         void printWaves();
 
@@ -126,6 +124,7 @@ class RiemannProblem
         RP_Function rpfunc;
 
         double H_ctr;
+
         WAVETYPE LCW{WAVETYPE::NOWAVE};
         WAVETYPE RCW{WAVETYPE::NOWAVE};
 

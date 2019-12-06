@@ -2,14 +2,14 @@ CXXFLAGS=-std=c++11 -g
 INCLUDE = -I../Common
 
 
-all: sw_riemann_solver_test
+all: sw_riemann_solver_test shallow_water1d
 
 
 sw_riemann_solver_test: sw_riemann_solver_test.cpp sw_riemann_problem.o ../Common/util.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-#shallow_water1d: shallow_water1d.cpp sw_riemann_problem.o ../Common/util.o
-#	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
+shallow_water1d: shallow_water1d.cpp sw_riemann_problem.o ../Common/util.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
 
 
