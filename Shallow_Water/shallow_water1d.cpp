@@ -203,29 +203,32 @@ int main(int argc, char* argv[])
             U[i] = Unew[i];
         }
 
-        //write output files
-        sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
-        sprintf(hfilename,"%s/height-%04d.txt",height_dir.c_str(),ts);
-        sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
-        sprintf(cfilename,"%s/celerity-%04d.txt",celerity_dir.c_str(),ts);
-        
-        ufile.open(ufilename);
-        hfile.open(hfilename);
-        pfile.open(pfilename);
-        cfile.open(cfilename);
-
-        for (int i = 0; i < N; ++i)
+        if (ts % 2 == 0)
         {
-            ufile << X[i] << " " << U[i].u << "\n";
-            hfile << X[i] << " " << U[i].h << "\n";
-            pfile << X[i] << " " << U[i].p << "\n";
-            cfile << X[i] << " " << U[i].c << "\n";
-        }
+            //write output files
+            sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
+            sprintf(hfilename,"%s/height-%04d.txt",height_dir.c_str(),ts);
+            sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
+            sprintf(cfilename,"%s/celerity-%04d.txt",celerity_dir.c_str(),ts);
+            
+            ufile.open(ufilename);
+            hfile.open(hfilename);
+            pfile.open(pfilename);
+            cfile.open(cfilename);
 
-        ufile.close();
-        hfile.close();
-        pfile.close();
-        cfile.close();
+            for (int i = 0; i < N; ++i)
+            {
+                ufile << X[i] << " " << U[i].u << "\n";
+                hfile << X[i] << " " << U[i].h << "\n";
+                pfile << X[i] << " " << U[i].p << "\n";
+                cfile << X[i] << " " << U[i].c << "\n";
+            }
+
+            ufile.close();
+            hfile.close();
+            pfile.close();
+            cfile.close();
+        }
 
         logfile << "step = " << ts << "   ";
         logfile << "time = " << time << "   ";

@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     create_directory(soundspeed_dir);
 
     char rhofilename[100];
-    sprintf(rhofilename,"%s/height-%04d.txt",density_dir.c_str(),0);
+    sprintf(rhofilename,"%s/density-%04d.txt",density_dir.c_str(),0);
     std::ofstream rhofile(rhofilename);
 
     char ufilename[100];
@@ -214,29 +214,32 @@ int main(int argc, char* argv[])
             U[i] = Unew[i];
         }
 
-        //write output files
-        sprintf(rhofilename,"%s/density-%04d.txt",density_dir.c_str(),ts);
-        sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
-        sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
-        sprintf(afilename,"%s/soundspeed-%04d.txt",soundspeed_dir.c_str(),ts);
-        
-        rhofile.open(rhofilename);
-        ufile.open(ufilename);
-        pfile.open(pfilename);
-        afile.open(afilename);
-
-        for (int i = 0; i < N; ++i)
+        if (ts % 2 == 0)
         {
-            rhofile << X[i] << " " << U[i].rho << "\n";
-            ufile << X[i] << " " << U[i].u << "\n";
-            pfile << X[i] << " " << U[i].p << "\n";
-            afile << X[i] << " " << U[i].a << "\n";
-        }
+            //write output files
+            sprintf(rhofilename,"%s/density-%04d.txt",density_dir.c_str(),ts);
+            sprintf(ufilename,"%s/velocity-%04d.txt",velocity_dir.c_str(),ts);
+            sprintf(pfilename,"%s/pressure-%04d.txt",pressure_dir.c_str(),ts);
+            sprintf(afilename,"%s/soundspeed-%04d.txt",soundspeed_dir.c_str(),ts);
+            
+            rhofile.open(rhofilename);
+            ufile.open(ufilename);
+            pfile.open(pfilename);
+            afile.open(afilename);
 
-        rhofile.close();
-        ufile.close();
-        pfile.close();
-        afile.close();
+            for (int i = 0; i < N; ++i)
+            {
+                rhofile << X[i] << " " << U[i].rho << "\n";
+                ufile << X[i] << " " << U[i].u << "\n";
+                pfile << X[i] << " " << U[i].p << "\n";
+                afile << X[i] << " " << U[i].a << "\n";
+            }
+
+            rhofile.close();
+            ufile.close();
+            pfile.close();
+            afile.close();
+        }
 
         logfile << "step = " << ts << "   ";
         logfile << "time = " << time << "   ";

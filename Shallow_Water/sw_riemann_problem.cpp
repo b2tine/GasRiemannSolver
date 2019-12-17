@@ -234,7 +234,7 @@ double RightCenteredWave(double H, STATE* sr_center, STATE* sr)
         ur = sr->u;
         hr = sr->h;
 
-        hr_c = H;
+        h_rc = H;
         u_rc = ur + (h_rc - hr)*sqrt(0.5*G*(hr + h_rc)/(hr*h_rc));
     }
     else
