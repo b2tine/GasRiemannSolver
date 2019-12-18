@@ -300,8 +300,6 @@ int main(int argc, char* argv[])
         logfile.close();
     }
     
-    printf("start conv\n");
-
     //convergence analysis on Solns vector
     std::vector<SOLN> Errors;
 
