@@ -24,12 +24,23 @@ for subdir in dirlist:
         X = list()
         Y = list()
         
+        ymax = 0.0
+        if (filename.endswith(".txt")):
+            for lines in open(os.path.join(subdir,filename),'r'):
+                values = lines.split()
+                ycurr = float(values[1])
+                if (ycurr > ymax):
+                    ymax = ycurr
+
         if (filename.endswith(".txt")):
             for lines in open(os.path.join(subdir,filename),'r'):
                 values = lines.split()
                 X.append(float(values[0]))
                 Y.append(float(values[1]))
             
+            plt.ylim(-0.1, ymax + 0.1)
             plt.plot(X,Y)
             plt.savefig(os.path.join(pngdir,filename.rstrip(".txt") + ".png"))
             plt.clf()
+
+        #TODO: call convert
