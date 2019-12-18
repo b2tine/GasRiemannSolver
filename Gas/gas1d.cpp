@@ -25,16 +25,15 @@ int main(int argc, char* argv[])
     }
     infile.close();
 
-    //TODO: read these from input file
-    double tfinal = 0.1;
-    int max_tstep = 2000;
+    double tfinal = init[6];
+    int max_tstep = 10000;
     double default_dt = 0.0005;
     double CFL = 0.75;
 
     int N = 1000;
-    double xmin = 0.0;
-    double xmid = 0.5;
-    double xmax = 1.0;
+    double xmin = init[7];
+    double xmid = init[8];
+    double xmax = init[9];
     double dx = (xmax - xmin)/((double)N);
 
     double X[N];
@@ -214,7 +213,7 @@ int main(int argc, char* argv[])
             U[i] = Unew[i];
         }
 
-        if (ts % 2 == 0)
+        if (ts % 5 == 0)
         {
             //write output files
             sprintf(rhofilename,"%s/density-%04d.txt",density_dir.c_str(),ts);

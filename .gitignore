@@ -7,7 +7,9 @@ secant_method_test
 riemann_solver_test
 sw_riemann_solver_test
 gas1d
+gas1d_convergence
 shallow_water1d
+shallow_water1d_convergence
 
 tags
 

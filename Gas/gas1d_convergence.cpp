@@ -2,6 +2,7 @@
 #include <util.h>
 
 #include <algorithm>
+#include <numeric>
 
 struct SOLN
 {
@@ -17,7 +18,7 @@ struct ERROR
     double velo;
     double pres;
     double sound;
-}
+};
 
 int main(int argc, char* argv[])
 {
@@ -46,27 +47,24 @@ int main(int argc, char* argv[])
     infile.close();
 
     double tfinal = init[6];
-    //double tfinal = 0.3; //init[6]
-    int max_tstep = 500;
+    int max_tstep = 10000;
     double default_dt = 0.0005;
     double CFL = 0.75;
-    assert(tfinal > 0.0);
+    assert (tfinal > 0.0);
 
     double xmin = init[7];
     double xmid = init[8];
-    double xmax = init[9]
+    double xmax = init[9];
 
-    //double xmin = -1.0; //init[7]
-    //double xmid = 0.0;  //init[8]
-    //double xmax = 1.0;  //init[9]
-    assert(xmid > xmin && xmid < xmax);
+    assert (xmid > xmin && xmid < xmax);
 
     std::vector<SOLN> Solns;
-    std::vector<int> Nvec = {200, 400, 800, 1600};
+    std::vector<int> Nvec = {100, 200, 400, 800, 1600};
 
     for (auto it = Nvec.begin(); it < Nvec.end(); ++it)
     {
         int N = *it;
+        printf("N = %d\n",N);
 
         double X[N];
 
@@ -119,6 +117,7 @@ int main(int argc, char* argv[])
         //write initial condition output files
         std::string outdir = outdir_base + "N" + std::to_string(N) + "/";
 
+        /*
         std::string density_dir = outdir + "density/";
         create_directory(density_dir);
 
@@ -159,6 +158,7 @@ int main(int argc, char* argv[])
         ufile.close();
         pfile.close();
         afile.close();
+        */
 
         //Start Up Step
         RiemannProblem RP_StartUp(&ULeftDirichlet,&URightDirichlet);
@@ -247,6 +247,7 @@ int main(int argc, char* argv[])
                 U[i] = Unew[i];
             }
 
+            /*
             if (ts % 2 == 0)
             {
                 //write output files
@@ -273,6 +274,7 @@ int main(int argc, char* argv[])
                 pfile.close();
                 afile.close();
             }
+            */
 
             logfile << "step = " << ts << "   ";
             logfile << "time = " << time << "   ";
@@ -298,8 +300,11 @@ int main(int argc, char* argv[])
         logfile.close();
     }
     
+    printf("start conv\n");
+
     //convergence analysis on Solns vector
-    std::vector<SOLN> Errors(Solns.size()-1);
+    std::vector<SOLN> Errors;
+
     for (int n = 0; n < Solns.size()-1; ++n)
     {
         SOLN coarse = Solns[n];
@@ -308,38 +313,42 @@ int main(int argc, char* argv[])
         SOLN error;
         for (int i = 0; i < coarse.dens.size(); ++i)
         {
-            dens_error = coarse.dens[i] - fine.dens[2*i];
+            double dens_error = coarse.dens[i] - fine.dens[2*i];
             error.dens.push_back(fabs(dens_error));
 
-            velo_error = coarse.velo[i] - fine.velo[2*i];
+            double velo_error = coarse.velo[i] - fine.velo[2*i];
             error.velo.push_back(fabs(velo_error));
 
-            pres_error = coarse.pres[i] - fine.pres[2*i];
+            double pres_error = coarse.pres[i] - fine.pres[2*i];
             error.pres.push_back(fabs(pres_error));
 
-            sound_error = coarse.sound[i] - fine.sound[2*i];
+            double sound_error = coarse.sound[i] - fine.sound[2*i];
             error.sound.push_back(fabs(sound_error));
         }
 
         Errors.push_back(error);
     }
 
+    printf("Errors.size() = %lu\n",Errors.size());
+
     std::vector<ERROR> Linfinity;
     for (int n = 0; n < Errors.size(); ++n)
     {
         ERROR linfty;
-        linfty.dens = std::max_element(Errors[n].dens);
-        linfty.velo = std::max_element(Errors[n].velo);
-        linfty.pres = std::max_element(Errors[n].pres);
-        linfty.sound = std::max_element(Errors[n].sound);
+        linfty.dens = *std::max_element(Errors[n].dens.begin(),Errors[n].dens.end());
+        linfty.velo = *std::max_element(Errors[n].velo.begin(),Errors[n].velo.end());
+        linfty.pres = *std::max_element(Errors[n].pres.begin(),Errors[n].pres.end());
+        linfty.sound = *std::max_element(Errors[n].sound.begin(),Errors[n].sound.end());
 
         Linfinity.push_back(linfty);
-        //sum each error vector (l1 norm)
+        //TODO: sum each error vector (l1 norm)
     }
 
     for (int n = 0; n < Linfinity.size(); ++n)
     {
-        //print results
+        printf("%g   %g   %g   %g   \n",
+                Linfinity[n].dens,Linfinity[n].velo,
+                Linfinity[n].pres,Linfinity[n].sound);
     }
 
     return 0;
