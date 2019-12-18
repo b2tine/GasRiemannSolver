@@ -161,6 +161,9 @@ void RiemannProblem::printWaves()
     }
     
     printf("\n");
+    printf("slip line slope: %g\n",slip_slope);
+    printf("\n");
+
     if (RCW == WAVETYPE::SHOCK)
     {
         printf("RCW is a Right Facing Shock:\n");
