@@ -30,11 +30,14 @@ int main(int argc, char* argv[])
     int max_tstep = 2000;
     double default_dt = 0.0005;
     double CFL = 0.75;
+    assert (tfinal > 0.0);
 
     int N = 1000;
     double xmin = init[5];
     double xmid = init[6];
     double xmax = init[7];
+    assert (xmid > xmin && xmid < xmax);
+
     double dx = (xmax - xmin)/((double)N);
 
     double X[N];
@@ -68,6 +71,8 @@ int main(int argc, char* argv[])
 
         U[i].u = velo;
         U[i].h = height;
+        U[i].computePressure();
+        U[i].computeCelerity();
     }
     
     //Dirichlet Boundaries

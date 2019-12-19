@@ -30,11 +30,24 @@ for subdir in dirlist:
         X = list()
         Y = list()
         
+        xmin = 0.0
+        xmax = 0.0
+        ymin = 0.0
         ymax = 0.0
+
         if (filename.endswith(".txt")):
             for lines in open(os.path.join(subdir,filename),'r'):
                 values = lines.split()
+                
+                xcurr = float(values[0])
+                if (xcurr < xmin):
+                    xmin = xcurr
+                if (xcurr > xmax):
+                    xmax = xcurr
+                
                 ycurr = float(values[1])
+                if (ycurr < ymin):
+                    ymin = ycurr
                 if (ycurr > ymax):
                     ymax = ycurr
 
@@ -44,7 +57,8 @@ for subdir in dirlist:
                 X.append(float(values[0]))
                 Y.append(float(values[1]))
             
-            plt.ylim(-ypad, ymax + ypad)
+            plt.xlim(xmin,xmax)
+            plt.ylim(ymin-ypad,ymax+ypad)
             plt.plot(X,Y)
             plt.savefig(os.path.join(pngdir,filename.rstrip(".txt") + ".png"))
             plt.clf()

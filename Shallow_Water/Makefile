@@ -3,7 +3,7 @@ INCLUDE = -I../Common
 
 
 all: sw_riemann_solver_test shallow_water1d \
- shallow_water1d-convergence
+ shallow_water1d_convergence
 
 
 sw_riemann_solver_test: sw_riemann_solver_test.cpp sw_riemann_problem.o ../Common/util.o
@@ -12,7 +12,7 @@ sw_riemann_solver_test: sw_riemann_solver_test.cpp sw_riemann_problem.o ../Commo
 shallow_water1d: shallow_water1d.cpp sw_riemann_problem.o ../Common/util.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
-shallow_water1d-convergence: shallow_water1d-convergence.cpp sw_riemann_problem.o ../Common/util.o
+shallow_water1d_convergence: shallow_water1d_convergence.cpp sw_riemann_problem.o ../Common/util.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
 
 
@@ -29,5 +29,5 @@ tags:
 clean:
 	$(RM) *.o
 	$(RM) sw_riemann_solver_test
-	$(RM) shallow_water1d-convergence
+	$(RM) shallow_water1d_convergence
 	$(RM) shallow_water1d
