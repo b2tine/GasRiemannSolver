@@ -26,15 +26,15 @@ int main(int argc, char* argv[])
     infile.close();
 
     //TODO: read these from input file
-    double tfinal = 0.01;
+    double tfinal = init[4];
     int max_tstep = 2000;
     double default_dt = 0.0005;
     double CFL = 0.75;
 
     int N = 1000;
-    double xmin = 0.0;
-    double xmid = 0.5;
-    double xmax = 1.0;
+    double xmin = init[5];
+    double xmid = init[6];
+    double xmax = init[7];
     double dx = (xmax - xmin)/((double)N);
 
     double X[N];

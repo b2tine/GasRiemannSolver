@@ -7,6 +7,12 @@ import os
 
 outdir = sys.argv[1].rstrip("/")
 
+ypad = 0.1
+try:
+    ypad = float(sys.argv[2])
+except IndexError:
+    pass
+
 dirlist = list()
 for name in os.listdir(outdir):
     dirname = os.path.join(outdir,name)
@@ -38,7 +44,7 @@ for subdir in dirlist:
                 X.append(float(values[0]))
                 Y.append(float(values[1]))
             
-            plt.ylim(-0.1, ymax + 0.1)
+            plt.ylim(-ypad, ymax + ypad)
             plt.plot(X,Y)
             plt.savefig(os.path.join(pngdir,filename.rstrip(".txt") + ".png"))
             plt.clf()
