@@ -26,15 +26,12 @@ for subdir in dirlist:
     except FileExistsError:
         pass
 
-    for filename in os.listdir(subdir):
-        X = list()
-        Y = list()
-        
-        xmin = 0.0
-        xmax = 0.0
-        ymin = 0.0
-        ymax = 0.0
+    xmin = 0.0
+    xmax = 0.0
+    ymin = 0.0
+    ymax = 0.0
 
+    for filename in os.listdir(subdir):
         if (filename.endswith(".txt")):
             for lines in open(os.path.join(subdir,filename),'r'):
                 values = lines.split()
@@ -51,6 +48,10 @@ for subdir in dirlist:
                 if (ycurr > ymax):
                     ymax = ycurr
 
+    for filename in os.listdir(subdir):
+        X = list()
+        Y = list()
+        
         if (filename.endswith(".txt")):
             for lines in open(os.path.join(subdir,filename),'r'):
                 values = lines.split()

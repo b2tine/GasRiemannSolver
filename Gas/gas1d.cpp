@@ -49,9 +49,10 @@ int main(int argc, char* argv[])
     {
         double dens, velo, pres;
 
-        X[i] = xmin + ((double) i + 0.5)*dx;
+        X[i] = xmin + ((double) i)*dx;
+        //X[i] = xmin + ((double) i + 0.5)*dx;
 
-        if (X[i] < xmid)
+        if (X[i] <= xmid)
         {
             dens = init[0];
             velo = init[1];
