@@ -64,14 +64,17 @@ struct STATE
 };
 
 
-double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
+double LeftCenteredWave(double Pslip, STATE* sl);
+double RightCenteredWave(double Pslip, STATE* sr);
+//double LeftCenteredWave(double Pslip, STATE* sl, STATE* sl_center);
+//double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
 
-double RightCenteredWave(double Pslip, STATE* sr_center, STATE* sr);
 
 
 struct RP_Function
 {
-    STATE *sleft, *sleft_center, *sright_center, *sright;
+    STATE *sleft, *sright;
+    //STATE *sleft, *sleft_center, *sright_center, *sright;
 
     RP_Function() = default;
 
@@ -82,8 +85,9 @@ struct RP_Function
     //      to work with the secantMethod() template function.
     double operator()(double P) const
     {
-        return LeftCenteredWave(P,sleft,sleft_center)
-            - RightCenteredWave(P,sright_center,sright);
+        return LeftCenteredWave(P,sleft) - RightCenteredWave(P,sright);
+        //return LeftCenteredWave(P,sleft,sleft_center)
+          //  - RightCenteredWave(P,sright_center,sright);
     }
 };
 
@@ -96,8 +100,8 @@ class RiemannProblem
             sr_c{new STATE(0,0,0,"RC")}, sr{sR}
         {
             rpfunc.sleft = sl;
-            rpfunc.sleft_center = sl_c;
-            rpfunc.sright_center = sr_c;
+            //rpfunc.sleft_center = sl_c;
+            //rpfunc.sright_center = sr_c;
             rpfunc.sright = sr;
         }
 
