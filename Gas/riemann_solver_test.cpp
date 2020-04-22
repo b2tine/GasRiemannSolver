@@ -71,9 +71,9 @@ int main(int argc, char* argv[])
     std::ofstream pfile(outdir+"pressure.txt");
     std::ofstream afile(outdir+"soundspeed.txt");
 
-    int M = 500;
-    double xl = -15;
-    double xr = 15;
+    int M = 100;
+    double xl = -1.0;
+    double xr = 1.0;
     double h = (xr-xl)/M;
     double t = 1.0;
 

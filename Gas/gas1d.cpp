@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     double xmin = init[7];
     double xmid = init[8];
     double xmax = init[9];
-    double dx = (xmax - xmin)/((double)N);
+    double dx = (xmax - xmin)/((double) N-1);
 
     double X[N];
 
@@ -50,7 +50,6 @@ int main(int argc, char* argv[])
         double dens, velo, pres;
 
         X[i] = xmin + ((double) i)*dx;
-        //X[i] = xmin + ((double) i + 0.5)*dx;
 
         if (X[i] <= xmid)
         {
@@ -214,6 +213,7 @@ int main(int argc, char* argv[])
             U[i] = Unew[i];
         }
 
+        //TODO: supply printing step interval in input file
         if (ts % 5 == 0)
         {
             //write output files
@@ -243,10 +243,13 @@ int main(int argc, char* argv[])
 
         logfile << "step = " << ts << "   ";
         logfile << "time = " << time << "   ";
-        logfile << "dt = " << dt << "\n\n";
+        logfile << "dt = " << dt << "\n" << std::endl;
 
         if (time >= tfinal)
+        {
+            logfile << "\n\t\tRUN SUCCESSFUL\n" << std::endl;
             break;
+        }
     }
 
     logfile.close();
