@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
     double tfinal = init[6];
     int max_tstep = 10000;
     double default_dt = 0.0005;
-    double CFL = 0.75;
+    double CFL = 1.0;
 
-    int N = 1000;
+    int N = 500;
     double xmin = init[7];
     double xmid = init[8];
     double xmax = init[9];
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
         Q[i][0] = dens;
         Q[i][1] = dens*velo;
-        Q[i][2] = 0.5*dens*velo*velo + pres/(GAMMA - 1.0);
+        Q[i][2] = dens*(pres/dens/(GAMMA - 1.0) + 0.5*velo*velo);
 
         U[i].rho = dens;
         U[i].u = velo;
@@ -131,12 +131,17 @@ int main(int argc, char* argv[])
     RP_StartUp.solve();
     STATE V_StartUp = RP_StartUp(0.0);
 
-    double u_start = fabs(V_StartUp.u);
+    //double u_start = fabs(V_StartUp.u);
+    double u_start = V_StartUp.u;
     double a_start = V_StartUp.a;
 
-    double max_speed =
-        std::max((std::max(u_start,fabs(u_start-a_start))),(fabs(u_start+a_start)));
+    double max_speed = fabs(u_start) + a_start;
+    //double max_speed =
+      //  std::max((std::max(u_start,fabs(u_start-a_start))),(fabs(u_start+a_start)));
     double max_dt = CFL*dx/max_speed;
+
+    //double max_speed = 0.0;
+    //double max_dt = HUGE;
 
     //Time Marching
     double time = 0.0;
@@ -164,8 +169,8 @@ int main(int argc, char* argv[])
             double QFlux[3];
             QFlux[0] = VP.rho*VP.u - VM.rho*VM.u;
             QFlux[1] = VP.rho*VP.u*VP.u + VP.p - (VM.rho*VM.u*VM.u + VM.p);
-            QFlux[2] = VP.u*(0.5*VP.rho*VP.u*VP.u + VP.p/(GAMMA - 1.0) + VP.p)
-                        - VM.u*(0.5*VM.rho*VM.u*VM.u + VM.p/(GAMMA - 1.0) + VM.p);
+            QFlux[2] = (VP.computeInternalEnergy() + 0.5*VP.u*VP.u + VP.p/VP.rho)*VP.rho*VP.u
+                - (VM.computeInternalEnergy() + 0.5*VM.u*VM.u + VM.p/VM.rho)*VM.rho*VM.u;
 
             //Update Conserved Variables and Field States
             double dens = Q[i][0] - QFlux[0]*dt/dx;
@@ -178,13 +183,13 @@ int main(int argc, char* argv[])
 
             Unew[i].rho = dens;
             Unew[i].u = momn/dens;
-            Unew[i].p = (energy - 0.5*momn*momn/dens)*(GAMMA - 1.0);
+            Unew[i].p = (GAMMA - 1.0)*(energy - 0.5*momn*momn/dens);
             Unew[i].computeSoundSpeed();
 
             //Record max_speed next time step
-            double u = fabs(Unew[i].u);
+            double u = Unew[i].u;
             double a = Unew[i].a;
-            double curr_max_speed = std::max((std::max(u,fabs(u-a))),(fabs(u+a)));
+            double curr_max_speed = fabs(u) + a;
             if (max_speed < curr_max_speed)
                 max_speed = curr_max_speed;
         }

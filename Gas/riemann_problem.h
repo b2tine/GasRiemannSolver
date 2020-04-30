@@ -48,6 +48,10 @@ struct STATE
     STATE(double RHO, double U, double P, double A, const std::string& ID);
 
     void computeSoundSpeed();
+    double computeInternalEnergy()
+    {
+        return p/rho/(GAMMA - 1.0);
+    }
 
     std::string printinfo() const;
 
