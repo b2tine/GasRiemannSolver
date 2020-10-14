@@ -40,7 +40,7 @@ std::string STATE::printinfo() const
 //Locate solution region of ksi = x/t and compute the solution
 STATE RiemannProblem::operator()(double ksi)
 {
-    if (ksi < slip_slope)
+    if (ksi <= slip_slope)
     {
         if (LCW == WAVETYPE::SHOCK)
         {
@@ -51,7 +51,7 @@ STATE RiemannProblem::operator()(double ksi)
         }
         else
         {
-            if (ksi < left_trailing_fan_slope)
+            if (ksi <= left_trailing_fan_slope)
                 return *sl;
             else if (ksi < left_leading_fan_slope)
             {
@@ -70,10 +70,10 @@ STATE RiemannProblem::operator()(double ksi)
     {
         if (RCW == WAVETYPE::SHOCK)
         {
-            if (ksi < right_shockspeed)
-                return *sr_c;
-            else
+            if (ksi > right_shockspeed)
                 return *sr;
+            else
+                return *sr_c;
         }
         else
         {
@@ -107,13 +107,11 @@ void RiemannProblem::solve()
     sl_c->u = LeftCenteredWave(Pslip,sl);
     
     sr_c->p = Pslip;
-    sr_c->u = RightCenteredWave(Pslip,sr);
-
-    //TODO: compute center state densities and soundspeeds
-    //      then should be done.
+    sr_c->u = sl_c->u;
+        //sr_c->u = RightCenteredWave(Pslip,sr);
 
     //Compute defining characteristics of Riemann Solution
-    if (Pslip < sl->p)
+    if (Pslip <= sl->p)
     {
         sl_c->rho = sl->rho*pow(Pslip/sl->p,1.0/GAMMA);
         sl_c->computeSoundSpeed();
@@ -136,7 +134,7 @@ void RiemannProblem::solve()
 
     slip_slope = sl_c->u;
 
-    if (Pslip < sr->p)
+    if (Pslip <= sr->p)
     {
         sr_c->rho = sr->rho*pow(Pslip/sr->p,1.0/GAMMA);
         sr_c->computeSoundSpeed();

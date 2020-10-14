@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
+#include <cmath>
 
 
 class NoConvergenceException : public std::runtime_error
@@ -46,28 +46,39 @@ class NoConvergenceException : public std::runtime_error
     throw NoConvergenceException(arg,tol,maxiter,__FUNCTION__,__FILE__,__LINE__)
 
 template<typename F>
-double secantMethod(const F& f, double x0, double x1,
-        double TOL = 1.0e-12, int MAXITER = 10000)
+double secantMethod(const F& f, double xa, double xb,
+        double TOL = 1.0e-07, int MAXITER = 20000)
 {
-    if (x0 == x1)
+    /*
+    double x0,x1;
+    if (fabs(xb - xa) <= TOL)
     {
-        x0 -= TOL;
-        x1 += TOL;
+        x0 = 0.001;
+        x1 = 100.0;
+        
+    }*/
+    
+    double x0 = xa;
+    double x1 = xb;
+    if (fabs(xb - xa) <= TOL)
+    {
+        x0 = 0.5*(xb + xa);
+        x1 = 0.5*(xb + xa) + 0.25*(xa - xb + 1.0e-06);
     }
 
-    int i = 0;
-    double xn = std::max(x0,x1); 
-    while (std::abs(f(xn)) > TOL && i < MAXITER)
+    double xn = x0;
+    for (int i = 0; i < MAXITER; ++i)
     {
         xn = x1 - f(x1)*(x1-x0)/(f(x1)-f(x0));
         x0 = x1;
         x1 = xn;
         ++i;
+
+        double feval = f(xn);
+        if (fabs(feval) < TOL)
+            return xn;;
     }
- 
-    if (i == MAXITER)
-        throwSecantMethodException("Did not find root!",TOL,MAXITER);
-    return xn;
+    throwSecantMethodException("Did not find root!",TOL,MAXITER);
 }
 
 
