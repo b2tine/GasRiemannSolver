@@ -72,7 +72,6 @@ double secantMethod(const F& f, double xa, double xb,
         xn = x1 - f(x1)*(x1-x0)/(f(x1)-f(x0));
         x0 = x1;
         x1 = xn;
-        ++i;
 
         double feval = f(xn);
         if (fabs(feval) < TOL)
